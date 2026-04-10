@@ -1,6 +1,6 @@
 import os
 import secrets
-from passlib.hash import bcrypt
+import bcrypt as _bcrypt
 from itsdangerous import URLSafeSerializer, BadSignature
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
@@ -16,7 +16,10 @@ def verify_admin(username: str, password: str) -> bool:
     if not ADMIN_PASSWORD_HASH:
         return False
     try:
-        return bcrypt.verify(password, ADMIN_PASSWORD_HASH)
+        return _bcrypt.checkpw(
+            password.encode("utf-8"),
+            ADMIN_PASSWORD_HASH.encode("utf-8"),
+        )
     except Exception:
         return False
 

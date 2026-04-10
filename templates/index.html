@@ -1,70 +1,117 @@
 {% extends "base.html" %}
-
 {% block title %}{{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
 
 {% block content %}
 
 <!-- HERO -->
-<section class="bg-[#e0f7fa] py-20 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-6xl mx-auto flex flex-col items-start gap-6">
-    <div class="mb-2">
-      <span class="text-4xl font-bold text-[#00bcd4]">Айс</span><span class="text-4xl font-bold text-[#5F5E5A]">.</span><span class="text-4xl font-bold text-[#1a1a1a]">Продукт</span>
+<section class="relative overflow-hidden py-24 px-4 sm:px-6 lg:px-8"
+         style="background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);">
+
+  <!-- Decorative blobs (как на ice-shield.ru) -->
+  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none opacity-40"
+       style="background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);"></div>
+  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none opacity-30"
+       style="background: radial-gradient(circle, #81c784 0%, transparent 70%);"></div>
+  <!-- Progress/scan bar accent -->
+  <div class="absolute bottom-0 left-0 right-0 h-1"
+       style="background: linear-gradient(to right, #26c6da, #66bb6a);"></div>
+
+  <div class="max-w-6xl mx-auto relative flex flex-col items-start gap-7">
+
+    <!-- Brand -->
+    <div class="text-5xl sm:text-6xl font-bold">
+      <span class="grad-text">Айс.Продукт</span>
     </div>
-    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#1a1a1a] max-w-2xl leading-tight">
+
+    <!-- Slogan — gradient heading как на ice-shield.ru -->
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold max-w-2xl leading-tight grad-text">
       {{ settings.slogan }}
     </h1>
-    <p class="text-[#5F5E5A] text-lg max-w-xl leading-relaxed">
+
+    <p class="text-gray-600 text-lg max-w-xl leading-relaxed">
       {{ settings.short_description }}
     </p>
+
     <a href="#products" class="btn-accent text-base mt-2">
       Наши продукты
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
     </a>
+
   </div>
 </section>
 
 <!-- PRODUCTS GRID -->
-<section id="products" class="py-16 px-4 sm:px-6 lg:px-8">
+<section id="products" class="py-16 px-4 sm:px-6 lg:px-8"
+         style="background: linear-gradient(to right, #e0f7fa, #ffffff);">
   <div class="max-w-6xl mx-auto">
-    <h2 class="text-2xl font-semibold text-[#1a1a1a] mb-10">Наши продукты</h2>
+    <h2 class="text-2xl font-semibold text-gray-800 mb-10">Наши продукты</h2>
 
     {% if apps %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for product in apps %}
       <div class="card flex flex-col">
-        <!-- Icon / thumbnail -->
-        <div class="bg-[#e0f7fa] h-44 flex items-center justify-center overflow-hidden">
+
+        <!-- Card top — gradient background -->
+        <div class="h-44 flex items-center justify-center overflow-hidden relative"
+             style="background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 60%, #e8f5e9 100%);">
           {% if product.icon_path %}
-            <img src="{{ product.icon_path }}" alt="{{ product.name }}" class="h-24 w-24 object-contain rounded-xl" />
+            <img src="{{ product.icon_path }}" alt="{{ product.name }}"
+                 class="h-24 w-24 object-contain rounded-xl relative z-10" />
           {% else %}
-            <div class="h-20 w-20 rounded-xl bg-[#00bcd4]/20 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="h-20 w-20 rounded-xl icon-grad flex items-center justify-center relative z-10
+                        shadow-lg" style="box-shadow:0 8px 20px rgba(38,198,218,0.4);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
               </svg>
             </div>
           {% endif %}
         </div>
-        <!-- Content -->
-        <div class="p-6 flex flex-col gap-3 flex-1">
-          <h3 class="text-lg font-semibold text-[#1a1a1a]">{{ product.name }}</h3>
-          <p class="text-[#5F5E5A] text-sm leading-relaxed flex-1">{{ product.short_description }}</p>
+
+        <!-- Card content -->
+        <div class="p-6 flex flex-col gap-3 flex-1 bg-white">
+          <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
+          <p class="text-gray-500 text-sm leading-relaxed flex-1">{{ product.short_description }}</p>
           <a href="/app/{{ product.slug }}" class="btn-outline text-sm self-start">
             Подробнее
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
           </a>
         </div>
       </div>
       {% endfor %}
     </div>
+
     {% else %}
-    <div class="text-center py-24 text-[#5F5E5A]">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4 text-[#e0f7fa]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="text-center py-24 text-gray-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4 text-ice-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
       </svg>
       <p class="text-lg">Продукты пока не добавлены.</p>
     </div>
     {% endif %}
+
   </div>
 </section>
+
+<!-- CTA Banner — как секция pricing CTA на ice-shield.ru -->
+{% if apps %}
+<section class="py-16 px-4 sm:px-6 lg:px-8"
+         style="background: linear-gradient(to right, #00bcd4, #4caf50);">
+  <div class="max-w-6xl mx-auto text-center flex flex-col items-center gap-5">
+    <h2 class="text-2xl sm:text-3xl font-semibold text-white">Готовы начать работу?</h2>
+    <p class="text-white/80 max-w-md">Выберите продукт и начните использовать бесплатно уже сегодня.</p>
+    <a href="#products" class="inline-flex items-center gap-2 bg-white font-medium px-6 py-3 rounded-xl transition-opacity hover:opacity-90"
+       style="color: #00bcd4; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+      Смотреть продукты
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </a>
+  </div>
+</section>
+{% endif %}
 
 {% endblock %}

@@ -8,43 +8,68 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .form-input { width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-size:0.875rem;outline:none;transition:border-color 0.15s; }
-    .form-input:focus { border-color:#00bcd4; }
+    .grad-text {
+      background: linear-gradient(to right, #00bcd4, #4caf50);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .form-input {
+      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 10px 14px; font-size: 0.875rem; outline: none; transition: border-color 0.15s;
+      background: rgba(255,255,255,0.8);
+    }
+    .form-input:focus { border-color: #26c6da; }
   </style>
 </head>
-<body class="min-h-screen bg-[#e0f7fa] flex items-center justify-center px-4">
-  <div class="w-full max-w-sm bg-white rounded-2xl border border-[#e0f7fa] p-8 flex flex-col gap-6">
-    <div class="text-center">
-      <div class="text-xl font-bold mb-2">
-        <span class="text-[#00bcd4]">Айс</span><span class="text-[#5F5E5A]">.</span><span class="text-[#1a1a1a]">Продукт</span>
+<body class="min-h-screen flex items-center justify-center px-4"
+      style="background: linear-gradient(135deg, #f9fafb 0%, #e0f7fa 50%, #e8f5e9 100%);">
+
+  <!-- Decorative blobs -->
+  <div class="fixed top-0 right-0 w-96 h-96 rounded-full pointer-events-none opacity-30"
+       style="background: radial-gradient(circle, #4dd0e1, transparent 70%); transform: translate(30%,-30%);"></div>
+  <div class="fixed bottom-0 left-0 w-72 h-72 rounded-full pointer-events-none opacity-20"
+       style="background: radial-gradient(circle, #81c784, transparent 70%); transform: translate(-30%,30%);"></div>
+
+  <div class="w-full max-w-sm relative z-10"
+       style="background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+              border-radius: 20px; border: 1px solid rgba(255,255,255,0.6);
+              box-shadow: 0 8px 32px rgba(38,198,218,0.18); padding: 2rem;">
+
+    <div class="text-center mb-6">
+      <div class="text-2xl font-bold mb-1">
+        <span class="grad-text">Айс.Продукт</span>
       </div>
-      <p class="text-sm text-[#5F5E5A]">Панель управления</p>
+      <p class="text-sm text-gray-400">Панель управления</p>
     </div>
 
     {% if error %}
-    <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+    <div class="mb-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
       {{ error }}
     </div>
     {% endif %}
 
     <form method="post" action="/admin/login" class="flex flex-col gap-4">
       <input type="hidden" name="csrf_token" value="{{ csrf }}" />
-
       <div>
-        <label class="block text-xs font-medium text-[#5F5E5A] mb-1.5">Логин</label>
-        <input type="text" name="username" class="form-input" placeholder="admin" required autocomplete="username" />
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">Логин</label>
+        <input type="text" name="username" class="form-input" placeholder="admin"
+               required autocomplete="username" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-[#5F5E5A] mb-1.5">Пароль</label>
-        <input type="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">Пароль</label>
+        <input type="password" name="password" class="form-input" placeholder="••••••••"
+               required autocomplete="current-password" />
       </div>
-
-      <button type="submit" class="w-full bg-[#00bcd4] hover:bg-[#0097a7] text-white font-medium py-2.5 rounded-xl transition-colors text-sm mt-2">
+      <button type="submit"
+              class="w-full text-white font-medium py-2.5 rounded-xl transition-opacity hover:opacity-88 text-sm mt-1"
+              style="background: linear-gradient(to right, #26c6da, #66bb6a);
+                     box-shadow: 0 4px 14px rgba(38,198,218,0.4);">
         Войти
       </button>
     </form>
 
-    <a href="/" class="text-center text-xs text-[#5F5E5A] hover:text-[#00bcd4] transition-colors">← На сайт</a>
+    <a href="/" class="block text-center text-xs text-gray-400 hover:text-[#00bcd4] transition-colors mt-5">
+      ← На сайт
+    </a>
   </div>
 </body>
 </html>

@@ -50,8 +50,9 @@
         <td class="px-4 py-3 text-[#5F5E5A] hidden md:table-cell">{{ product.sort_order }}</td>
         <td class="px-4 py-3">
           {% if product.is_published %}
-            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#00bcd4] bg-[#e0f7fa] px-2.5 py-1 rounded-full">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#00bcd4]"></span>Опубликовано
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-white px-2.5 py-1 rounded-full"
+                  style="background: linear-gradient(to right, #26c6da, #66bb6a);">
+              <span class="w-1.5 h-1.5 rounded-full bg-white/70"></span>Опубликовано
             </span>
           {% else %}
             <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#5F5E5A] bg-gray-100 px-2.5 py-1 rounded-full">

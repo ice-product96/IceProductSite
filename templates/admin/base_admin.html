@@ -8,64 +8,104 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ice: { white: '#FFFFFF', light: '#e0f7fa', accent: '#00bcd4', dark: '#1a1a1a', muted: '#5F5E5A' }
-          },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          borderRadius: { 'xl': '12px', '2xl': '16px' }
-        }
-      }
-    }
-  </script>
   <style>
     body { font-family: 'Inter', sans-serif; color: #1a1a1a; background: #f0fbfc; }
-    .btn-accent { display:inline-flex;align-items:center;gap:6px;background:#00bcd4;color:#fff;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
-    .btn-accent:hover { background:#0097a7; }
-    .btn-danger { display:inline-flex;align-items:center;gap:6px;background:#fee2e2;color:#dc2626;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
-    .btn-danger:hover { background:#fca5a5; }
-    .btn-ghost { display:inline-flex;align-items:center;gap:6px;color:#5F5E5A;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
-    .btn-ghost:hover { background:#e0f7fa;color:#1a1a1a; }
-    .form-input { width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:9px 13px;font-size:0.875rem;outline:none;transition:border-color 0.15s;background:#fff; }
-    .form-input:focus { border-color:#00bcd4; }
-    .form-label { font-size:0.8125rem;font-weight:500;color:#5F5E5A;margin-bottom:5px;display:block; }
-    .admin-card { background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:24px; }
-    .nav-link { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:0.875rem;color:#5F5E5A;transition:background 0.15s,color 0.15s; }
-    .nav-link:hover,.nav-link.active { background:#e0f7fa;color:#00bcd4; }
-    .nav-link.active { font-weight:500; }
+
+    .grad-text {
+      background: linear-gradient(to right, #00bcd4, #4caf50);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .btn-accent {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(to right, #26c6da, #66bb6a);
+      color: #fff; font-weight: 500; padding: 9px 18px; border-radius: 10px;
+      transition: opacity 0.15s; font-size: 0.875rem;
+      box-shadow: 0 4px 12px rgba(38,198,218,0.35);
+    }
+    .btn-accent:hover { opacity: 0.85; }
+
+    .btn-danger {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fee2e2; color: #dc2626; font-weight: 500;
+      padding: 9px 18px; border-radius: 10px; transition: background 0.15s; font-size: 0.875rem;
+    }
+    .btn-danger:hover { background: #fca5a5; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #6b7280; font-weight: 500; padding: 9px 18px;
+      border-radius: 10px; transition: background 0.15s; font-size: 0.875rem;
+    }
+    .btn-ghost:hover { background: #e0f7fa; color: #1a1a1a; }
+
+    .form-input {
+      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 9px 13px; font-size: 0.875rem; outline: none;
+      transition: border-color 0.15s; background: #fff;
+    }
+    .form-input:focus { border-color: #26c6da; }
+
+    .form-label { font-size: 0.8125rem; font-weight: 500; color: #6b7280; margin-bottom: 5px; display: block; }
+
+    .admin-card { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 16px; padding: 24px; }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      border-radius: 10px; font-size: 0.875rem; color: #6b7280;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-link:hover { background: #e0f7fa; color: #00bcd4; }
+    .nav-link.active {
+      background: linear-gradient(to right, #e0f7fa, #e8f5e9);
+      color: #00bcd4; font-weight: 500;
+      border-left: 3px solid #26c6da;
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen flex">
 
   <!-- SIDEBAR -->
-  <aside class="w-56 flex-shrink-0 bg-white border-r border-[#e0f7fa] flex flex-col min-h-screen sticky top-0 h-screen">
-    <div class="p-5 border-b border-[#e0f7fa]">
-      <a href="/" class="font-semibold text-base">
-        <span class="text-[#00bcd4] font-bold">Айс</span><span class="text-[#5F5E5A]">.</span><span class="text-[#1a1a1a]">Продукт</span>
+  <aside class="w-56 flex-shrink-0 bg-white flex flex-col min-h-screen sticky top-0 h-screen"
+         style="border-right: 1.5px solid #e0f7fa;">
+
+    <!-- Sidebar header — gradient как на ice-shield.ru brand area -->
+    <div class="p-5 border-b border-ice-100"
+         style="background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%);">
+      <a href="/" class="font-bold text-base">
+        <span class="grad-text">Айс.Продукт</span>
       </a>
-      <p class="text-xs text-[#5F5E5A] mt-0.5">Панель управления</p>
+      <p class="text-xs text-gray-400 mt-0.5">Панель управления</p>
     </div>
+
     <nav class="flex-1 p-3 flex flex-col gap-1">
       <a href="/admin/apps" class="nav-link {% if request.url.path.startswith('/admin/apps') %}active{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+        </svg>
         Приложения
       </a>
       <a href="/admin/settings" class="nav-link {% if request.url.path == '/admin/settings' %}active{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
         Настройки
       </a>
       <a href="/" target="_blank" class="nav-link">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
         Сайт
       </a>
     </nav>
-    <div class="p-3 border-t border-[#e0f7fa]">
-      <a href="/admin/logout" class="nav-link text-red-500 hover:bg-red-50 hover:text-red-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+
+    <div class="p-3 border-t border-ice-100">
+      <a href="/admin/logout" class="nav-link text-red-400 hover:bg-red-50 hover:text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
         Выйти
       </a>
     </div>
@@ -73,8 +113,9 @@
 
   <!-- CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen">
-    <header class="bg-white border-b border-[#e0f7fa] px-8 py-4 flex items-center justify-between">
-      <h1 class="text-lg font-semibold text-[#1a1a1a]">{% block page_title %}{% endblock %}</h1>
+    <header class="bg-white px-8 py-4 flex items-center justify-between"
+            style="border-bottom: 1.5px solid #e0f7fa;">
+      <h1 class="text-lg font-semibold text-gray-800">{% block page_title %}{% endblock %}</h1>
       <div class="flex items-center gap-3">{% block header_actions %}{% endblock %}</div>
     </header>
     <main class="flex-1 p-8">

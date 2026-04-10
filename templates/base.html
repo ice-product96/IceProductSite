@@ -14,60 +14,86 @@
       theme: {
         extend: {
           colors: {
-            ice: {
-              white:   '#FFFFFF',
-              light:   '#e0f7fa',
-              accent:  '#00bcd4',
-              dark:    '#1a1a1a',
-              muted:   '#5F5E5A',
-            }
+            ice:    { 50:'#e0f7fa',100:'#e0f7fa',200:'#b2ebf2',300:'#80deea',400:'#4dd0e1',500:'#26c6da',600:'#00bcd4',700:'#00acc1',800:'#0097a7',900:'#00838f' },
+            shield: { 100:'#e8f5e9',200:'#c8e6c9',300:'#a5d6a7',400:'#81c784',500:'#66bb6a',600:'#4caf50',700:'#43a047',800:'#388e3c',900:'#2e7d32' }
           },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          borderRadius: {
-            'xl':  '12px',
-            '2xl': '16px',
-          }
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          borderRadius: { 'xl': '12px', '2xl': '16px' }
         }
       }
     }
   </script>
   <style>
-    body { font-family: 'Inter', sans-serif; color: #1a1a1a; background: #FFFFFF; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1a1a1a;
+      background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);
+      min-height: 100vh;
+    }
+
+    /* Gradient text utility */
+    .grad-text {
+      background: linear-gradient(to right, #00bcd4, #4caf50);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Primary button — cyan→green */
     .btn-accent {
       display: inline-flex; align-items: center; gap: 6px;
-      background: #00bcd4; color: #fff; font-weight: 500;
+      background: linear-gradient(to right, #26c6da, #66bb6a);
+      color: #fff; font-weight: 500;
       padding: 10px 22px; border-radius: 12px;
-      transition: background 0.15s;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 4px 14px rgba(38,198,218,0.4);
     }
-    .btn-accent:hover { background: #0097a7; }
+    .btn-accent:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* Outline button */
     .btn-outline {
       display: inline-flex; align-items: center; gap: 6px;
       border: 1.5px solid #00bcd4; color: #00bcd4; font-weight: 500;
       padding: 9px 20px; border-radius: 12px;
-      transition: background 0.15s, color 0.15s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
-    .btn-outline:hover { background: #00bcd4; color: #fff; }
+    .btn-outline:hover {
+      background: linear-gradient(to right, #26c6da, #66bb6a);
+      color: #fff; border-color: transparent;
+      box-shadow: 0 4px 14px rgba(38,198,218,0.35);
+    }
+
+    /* Product card */
     .card {
-      background: #FFFFFF; border: 1.5px solid #e0f7fa;
+      background: #ffffff;
+      border: 1.5px solid #e0f7fa;
       border-radius: 16px; overflow: hidden;
-      transition: border-color 0.15s;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-    .card:hover { border-color: #00bcd4; }
+    .card:hover {
+      border-color: #4dd0e1;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,188,212,0.15);
+    }
+
+    /* Icon gradient background */
+    .icon-grad {
+      background: linear-gradient(135deg, #26c6da, #66bb6a);
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen flex flex-col">
 
   <!-- NAV -->
-  <header class="sticky top-0 z-30 bg-white border-b border-[#e0f7fa]">
+  <header class="sticky top-0 z-30 border-b border-ice-200/60"
+          style="background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-      <a href="/" class="font-semibold text-[#1a1a1a] text-lg tracking-tight">
-        <span class="text-[#00bcd4] font-bold">Айс</span><span class="text-[#5F5E5A]">.</span><span>Продукт</span>
+      <a href="/" class="font-bold text-lg tracking-tight">
+        <span class="grad-text">Айс.Продукт</span>
       </a>
-      <nav class="flex items-center gap-6 text-sm text-[#5F5E5A]">
-        <a href="/#products" class="hover:text-[#00bcd4] transition-colors">Продукты</a>
+      <nav class="flex items-center gap-6 text-sm text-gray-500">
+        <a href="/#products" class="hover:text-[#00bcd4] transition-colors font-medium">Продукты</a>
         {% if request.url.path.startswith('/admin') %}
           <a href="/admin/logout" class="hover:text-[#00bcd4] transition-colors">Выйти</a>
         {% endif %}
@@ -81,9 +107,10 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-[#e0f7fa] mt-auto">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#5F5E5A]">
-      <span>© {{ settings.meta_title or "Айс.Продукт" }} {{ 2026 }}</span>
+  <footer class="mt-auto" style="background: linear-gradient(to right, #00bcd4, #4caf50);">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8
+                flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/90">
+      <span class="font-medium">© {{ settings.meta_title or "Айс.Продукт" }} {{ 2026 }}</span>
       <span>Умные инструменты для современных команд</span>
     </div>
   </footer>

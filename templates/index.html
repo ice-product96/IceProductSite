@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="bg-[#EAF3DE] py-20 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto flex flex-col items-start gap-6">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-4xl font-bold text-[#639922]">Айс</span><span class="text-4xl font-bold text-[#5F5E5A]">.</span><span class="text-4xl font-bold text-[#1a1a1a]">Продукт</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#1a1a1a] max-w-2xl leading-tight">
+      {{ settings.slogan }}
+    </h1>
+    <p class="text-[#5F5E5A] text-lg max-w-xl leading-relaxed">
+      {{ settings.short_description }}
+    </p>
+    <a href="#products" class="btn-accent text-base mt-2">
+      Наши продукты
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- PRODUCTS GRID -->
+<section id="products" class="py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-2xl font-semibold text-[#1a1a1a] mb-10">Наши продукты</h2>
+
+    {% if apps %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for product in apps %}
+      <div class="card flex flex-col">
+        <!-- Icon / thumbnail -->
+        <div class="bg-[#EAF3DE] h-44 flex items-center justify-center overflow-hidden">
+          {% if product.icon_path %}
+            <img src="{{ product.icon_path }}" alt="{{ product.name }}" class="h-24 w-24 object-contain rounded-xl" />
+          {% else %}
+            <div class="h-20 w-20 rounded-xl bg-[#639922]/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
+              </svg>
+            </div>
+          {% endif %}
+        </div>
+        <!-- Content -->
+        <div class="p-6 flex flex-col gap-3 flex-1">
+          <h3 class="text-lg font-semibold text-[#1a1a1a]">{{ product.name }}</h3>
+          <p class="text-[#5F5E5A] text-sm leading-relaxed flex-1">{{ product.short_description }}</p>
+          <a href="/app/{{ product.slug }}" class="btn-outline text-sm self-start">
+            Подробнее
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-24 text-[#5F5E5A]">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4 text-[#EAF3DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+      </svg>
+      <p class="text-lg">Продукты пока не добавлены.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

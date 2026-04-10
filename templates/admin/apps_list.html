@@ -1,0 +1,136 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Приложения{% endblock %}
+{% block page_title %}Приложения{% endblock %}
+
+{% block header_actions %}
+<a href="/admin/apps/new" class="btn-accent">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+  Добавить
+</a>
+{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+{% if apps %}
+<div class="admin-card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-[#EAF3DE] bg-[#f8faf5]">
+        <th class="w-8 px-4 py-3"></th>
+        <th class="px-4 py-3 text-left font-medium text-[#5F5E5A]">Название</th>
+        <th class="px-4 py-3 text-left font-medium text-[#5F5E5A] hidden sm:table-cell">Slug</th>
+        <th class="px-4 py-3 text-left font-medium text-[#5F5E5A] hidden md:table-cell">Порядок</th>
+        <th class="px-4 py-3 text-left font-medium text-[#5F5E5A]">Статус</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody id="sortable-apps">
+      {% for product in apps %}
+      <tr class="border-b border-[#EAF3DE] last:border-0 hover:bg-[#f8faf5] transition-colors" data-id="{{ product.id }}">
+        <td class="px-4 py-3 cursor-grab text-[#5F5E5A]/40 hover:text-[#5F5E5A] drag-handle select-none" title="Перетащить для сортировки">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-3">
+            {% if product.icon_path %}
+              <img src="{{ product.icon_path }}" class="w-8 h-8 rounded-lg object-contain bg-[#EAF3DE] p-0.5 flex-shrink-0" alt="" />
+            {% else %}
+              <div class="w-8 h-8 rounded-lg bg-[#EAF3DE] flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/></svg>
+              </div>
+            {% endif %}
+            <span class="font-medium text-[#1a1a1a]">{{ product.name }}</span>
+          </div>
+        </td>
+        <td class="px-4 py-3 text-[#5F5E5A] font-mono text-xs hidden sm:table-cell">{{ product.slug }}</td>
+        <td class="px-4 py-3 text-[#5F5E5A] hidden md:table-cell">{{ product.sort_order }}</td>
+        <td class="px-4 py-3">
+          {% if product.is_published %}
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#639922] bg-[#EAF3DE] px-2.5 py-1 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#639922]"></span>Опубликовано
+            </span>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#5F5E5A] bg-gray-100 px-2.5 py-1 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>Скрыто
+            </span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-2 justify-end">
+            <a href="/admin/apps/{{ product.id }}/edit" class="btn-ghost py-1.5 px-3">Изменить</a>
+            <button
+              onclick="confirmDelete({{ product.id }}, '{{ product.name | replace("'", "\\'") }}')"
+              class="btn-danger py-1.5 px-3">Удалить</button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="admin-card flex flex-col items-center justify-center py-20 gap-4 text-center">
+  <div class="w-14 h-14 rounded-2xl bg-[#EAF3DE] flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+  </div>
+  <div>
+    <p class="font-medium text-[#1a1a1a]">Приложений пока нет</p>
+    <p class="text-sm text-[#5F5E5A] mt-1">Добавьте первое приложение, чтобы оно появилось на сайте.</p>
+  </div>
+  <a href="/admin/apps/new" class="btn-accent mt-2">Добавить приложение</a>
+</div>
+{% endif %}
+
+<!-- Delete modal -->
+<div id="delete-modal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full flex flex-col gap-4 border border-[#EAF3DE]">
+    <h3 class="font-semibold text-[#1a1a1a]">Удалить приложение?</h3>
+    <p class="text-sm text-[#5F5E5A]">Вы удаляете <strong id="delete-name"></strong>. Это действие нельзя отменить. Иконка и все скриншоты будут удалены.</p>
+    <form id="delete-form" method="post" class="flex gap-3 justify-end">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+      <button type="button" onclick="closeModal()" class="btn-ghost">Отмена</button>
+      <button type="submit" class="btn-danger">Удалить</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Delete modal
+  function confirmDelete(id, name) {
+    document.getElementById('delete-name').textContent = name;
+    document.getElementById('delete-form').action = `/admin/apps/${id}/delete`;
+    document.getElementById('delete-modal').classList.remove('hidden');
+  }
+  function closeModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
+  }
+  document.getElementById('delete-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Drag-and-drop reorder
+  const CSRF = {{ csrf | tojson }};
+  const el = document.getElementById('sortable-apps');
+  if (el) {
+    Sortable.create(el, {
+      handle: '.drag-handle',
+      animation: 150,
+      onEnd: function() {
+        const order = [...el.querySelectorAll('tr[data-id]')].map(r => parseInt(r.dataset.id));
+        fetch('/admin/apps/reorder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order, csrf_token: CSRF })
+        });
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{% if is_new %}Новое приложение{% else %}{{ product.name }}{% endif %}{% endblock %}
+{% block page_title %}{% if is_new %}Новое приложение{% else %}Редактировать: {{ product.name }}{% endif %}{% endblock %}
+
+{% block header_actions %}
+<a href="/admin/apps" class="btn-ghost">← Назад</a>
+{% endblock %}
+
+{% block content %}
+
+{% if errors %}
+<div class="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex flex-col gap-1">
+  {% for err in errors %}
+  <p class="text-sm text-red-700 flex items-start gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    {{ err }}
+  </p>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% set form_action = '/admin/apps/new' if is_new else '/admin/apps/' ~ product.id ~ '/edit' %}
+
+<form method="post" action="{{ form_action }}" enctype="multipart/form-data" class="flex flex-col gap-6" id="app-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT: main fields -->
+    <div class="lg:col-span-2 flex flex-col gap-6">
+
+      <!-- Basic info -->
+      <div class="admin-card flex flex-col gap-5">
+        <h2 class="font-semibold text-[#1a1a1a]">Основная информация</h2>
+
+        <div>
+          <label class="form-label">Название <span class="text-red-400">*</span></label>
+          <input type="text" name="name" id="name-input" class="form-input" value="{{ product.name if product else '' }}"
+                 required maxlength="255" placeholder="Айс.Трекер" oninput="autoSlug()" />
+        </div>
+
+        <div>
+          <label class="form-label">Slug <span class="text-[#5F5E5A]/50">(URL-идентификатор)</span></label>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-[#5F5E5A] whitespace-nowrap">/app/</span>
+            <input type="text" name="slug" id="slug-input" class="form-input font-mono text-xs"
+                   value="{{ product.slug if product else '' }}"
+                   required pattern="[a-z0-9\-]+" title="Только строчные латинские буквы, цифры и дефис"
+                   placeholder="ice-tracker" />
+          </div>
+          <p class="text-xs text-[#5F5E5A] mt-1">Автогенерируется из названия. Только строчные буквы, цифры, дефис.</p>
+        </div>
+
+        <div>
+          <label class="form-label">Краткое описание <span class="text-[#5F5E5A]/50">(до 160 символов)</span></label>
+          <textarea name="short_description" class="form-input resize-none" rows="2"
+                    maxlength="160" placeholder="Одно-два предложения для карточки на главной…"
+                    oninput="updateCounter(this, 'short-counter', 160)">{{ product.short_description if product else '' }}</textarea>
+          <p class="text-xs text-[#5F5E5A] mt-1"><span id="short-counter">{{ (product.short_description or '')|length }}</span> / 160</p>
+        </div>
+
+        <div>
+          <label class="form-label">Полное описание</label>
+          <textarea name="full_description" class="form-input resize-y" rows="8"
+                    placeholder="Поддерживается Markdown / обычный текст…">{{ product.full_description if product else '' }}</textarea>
+        </div>
+
+        <div>
+          <label class="form-label">Ключевые возможности <span class="text-[#5F5E5A]/50">(каждая строка — отдельный пункт)</span></label>
+          <textarea name="features_raw" class="form-input resize-y font-mono text-xs" rows="6"
+                    placeholder="Гибкие доски задач&#10;Управление командой&#10;Бесплатно для всех">{% if product and product.features %}{{ product.features | join('\n') }}{% endif %}</textarea>
+        </div>
+
+        <div>
+          <label class="form-label">Внешняя ссылка</label>
+          <input type="url" name="external_url" class="form-input" value="{{ product.external_url if product else '' }}"
+                 placeholder="https://example.com" />
+        </div>
+      </div>
+
+      <!-- Screenshots -->
+      <div class="admin-card flex flex-col gap-5">
+        <h2 class="font-semibold text-[#1a1a1a]">Скриншоты <span class="text-sm font-normal text-[#5F5E5A]">(до 5 штук, JPG/PNG, макс. 2 MB каждый)</span></h2>
+
+        {% if product and product.screenshots %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="screenshots-list">
+          {% for ss in product.screenshots %}
+          <div class="relative group rounded-xl overflow-hidden border border-[#EAF3DE]">
+            <img src="{{ ss.file_path }}" alt="Скриншот" class="w-full h-32 object-cover" />
+            <form method="post" action="/admin/screenshots/{{ ss.id }}/delete"
+                  class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+              <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+              <button type="submit"
+                      onclick="return confirm('Удалить этот скриншот?')"
+                      class="bg-white text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                Удалить
+              </button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% set ss_count = (product.screenshots|length) if (product and product.screenshots) else 0 %}
+        {% if ss_count < 5 %}
+        <div>
+          <label class="form-label">Добавить скриншоты</label>
+          <input type="file" name="screenshots" multiple accept="image/jpeg,image/png,image/webp"
+                 class="form-input py-2 cursor-pointer" onchange="previewScreenshots(this)" />
+          <div id="ss-preview" class="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3 hidden"></div>
+        </div>
+        {% else %}
+        <p class="text-sm text-[#5F5E5A]">Достигнут лимит в 5 скриншотов. Удалите лишние, чтобы добавить новые.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT: sidebar -->
+    <div class="flex flex-col gap-6">
+
+      <!-- Publish + order -->
+      <div class="admin-card flex flex-col gap-5">
+        <h2 class="font-semibold text-[#1a1a1a]">Публикация</h2>
+
+        <label class="flex items-center gap-3 cursor-pointer select-none">
+          <div class="relative">
+            <input type="checkbox" name="is_published" id="is-published"
+                   class="sr-only peer" value="true"
+                   {% if not product or product.is_published %}checked{% endif %} />
+            <div class="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-[#639922] transition-colors"></div>
+            <div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
+          </div>
+          <span class="text-sm font-medium text-[#1a1a1a]">Опубликовано</span>
+        </label>
+
+        <div>
+          <label class="form-label">Порядок сортировки</label>
+          <input type="number" name="sort_order" class="form-input" min="0"
+                 value="{{ product.sort_order if product else 0 }}" />
+          <p class="text-xs text-[#5F5E5A] mt-1">Меньше = выше в списке.</p>
+        </div>
+
+        <button type="submit" class="btn-accent w-full justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          {% if is_new %}Создать{% else %}Сохранить{% endif %}
+        </button>
+      </div>
+
+      <!-- Icon -->
+      <div class="admin-card flex flex-col gap-4">
+        <h2 class="font-semibold text-[#1a1a1a]">Иконка <span class="text-sm font-normal text-[#5F5E5A]">(PNG/SVG, макс. 512 KB)</span></h2>
+
+        <div class="flex items-center justify-center h-28 bg-[#EAF3DE] rounded-xl" id="icon-preview-wrap">
+          {% if product and product.icon_path %}
+            <img id="icon-preview" src="{{ product.icon_path }}" class="h-20 w-20 object-contain rounded-xl" alt="Иконка" />
+          {% else %}
+            <div id="icon-preview-placeholder" class="flex flex-col items-center gap-2 text-[#5F5E5A]/50">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span class="text-xs">Нет иконки</span>
+            </div>
+          {% endif %}
+        </div>
+
+        <input type="file" name="icon" accept="image/png,image/jpeg,image/svg+xml,image/webp"
+               class="form-input py-2 cursor-pointer text-xs" onchange="previewIcon(this)" />
+      </div>
+
+    </div>
+  </div>
+
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Auto-generate slug from name
+  function slugify(str) {
+    const map = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'j',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'','ы':'y',ь:'',э:'e',ю:'yu',я:'ya'};
+    return str.toLowerCase().split('').map(c => map[c] !== undefined ? map[c] : c).join('')
+      .replace(/[^a-z0-9\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-');
+  }
+
+  let slugEdited = {{ 'false' if is_new else 'true' }};
+  document.getElementById('slug-input').addEventListener('input', () => { slugEdited = true; });
+
+  function autoSlug() {
+    if (slugEdited) return;
+    const name = document.getElementById('name-input').value;
+    document.getElementById('slug-input').value = slugify(name);
+  }
+
+  // Character counter
+  function updateCounter(el, counterId, max) {
+    document.getElementById(counterId).textContent = el.value.length;
+  }
+
+  // Icon preview
+  function previewIcon(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wrap = document.getElementById('icon-preview-wrap');
+      wrap.innerHTML = `<img id="icon-preview" src="${e.target.result}" class="h-20 w-20 object-contain rounded-xl" alt="Иконка" />`;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  // Screenshots preview
+  function previewScreenshots(input) {
+    const container = document.getElementById('ss-preview');
+    container.innerHTML = '';
+    if (!input.files || input.files.length === 0) { container.classList.add('hidden'); return; }
+    container.classList.remove('hidden');
+    [...input.files].forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div');
+        div.className = 'rounded-xl overflow-hidden border border-[#EAF3DE]';
+        div.innerHTML = `<img src="${e.target.result}" class="w-full h-32 object-cover" />`;
+        container.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+</script>
+{% endblock %}

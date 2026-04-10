@@ -19,7 +19,7 @@
 <div class="admin-card p-0 overflow-hidden">
   <table class="w-full text-sm">
     <thead>
-      <tr class="border-b border-[#EAF3DE] bg-[#f8faf5]">
+      <tr class="border-b border-[#e0f7fa] bg-[#f8faf5]">
         <th class="w-8 px-4 py-3"></th>
         <th class="px-4 py-3 text-left font-medium text-[#5F5E5A]">Название</th>
         <th class="px-4 py-3 text-left font-medium text-[#5F5E5A] hidden sm:table-cell">Slug</th>
@@ -30,17 +30,17 @@
     </thead>
     <tbody id="sortable-apps">
       {% for product in apps %}
-      <tr class="border-b border-[#EAF3DE] last:border-0 hover:bg-[#f8faf5] transition-colors" data-id="{{ product.id }}">
+      <tr class="border-b border-[#e0f7fa] last:border-0 hover:bg-[#f8faf5] transition-colors" data-id="{{ product.id }}">
         <td class="px-4 py-3 cursor-grab text-[#5F5E5A]/40 hover:text-[#5F5E5A] drag-handle select-none" title="Перетащить для сортировки">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
         </td>
         <td class="px-4 py-3">
           <div class="flex items-center gap-3">
             {% if product.icon_path %}
-              <img src="{{ product.icon_path }}" class="w-8 h-8 rounded-lg object-contain bg-[#EAF3DE] p-0.5 flex-shrink-0" alt="" />
+              <img src="{{ product.icon_path }}" class="w-8 h-8 rounded-lg object-contain bg-[#e0f7fa] p-0.5 flex-shrink-0" alt="" />
             {% else %}
-              <div class="w-8 h-8 rounded-lg bg-[#EAF3DE] flex items-center justify-center flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/></svg>
+              <div class="w-8 h-8 rounded-lg bg-[#e0f7fa] flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/></svg>
               </div>
             {% endif %}
             <span class="font-medium text-[#1a1a1a]">{{ product.name }}</span>
@@ -50,8 +50,8 @@
         <td class="px-4 py-3 text-[#5F5E5A] hidden md:table-cell">{{ product.sort_order }}</td>
         <td class="px-4 py-3">
           {% if product.is_published %}
-            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#639922] bg-[#EAF3DE] px-2.5 py-1 rounded-full">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#639922]"></span>Опубликовано
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#00bcd4] bg-[#e0f7fa] px-2.5 py-1 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#00bcd4]"></span>Опубликовано
             </span>
           {% else %}
             <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#5F5E5A] bg-gray-100 px-2.5 py-1 rounded-full">
@@ -74,8 +74,8 @@
 </div>
 {% else %}
 <div class="admin-card flex flex-col items-center justify-center py-20 gap-4 text-center">
-  <div class="w-14 h-14 rounded-2xl bg-[#EAF3DE] flex items-center justify-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+  <div class="w-14 h-14 rounded-2xl bg-[#e0f7fa] flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
   </div>
   <div>
     <p class="font-medium text-[#1a1a1a]">Приложений пока нет</p>
@@ -87,7 +87,7 @@
 
 <!-- Delete modal -->
 <div id="delete-modal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
-  <div class="bg-white rounded-2xl p-6 max-w-sm w-full flex flex-col gap-4 border border-[#EAF3DE]">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full flex flex-col gap-4 border border-[#e0f7fa]">
     <h3 class="font-semibold text-[#1a1a1a]">Удалить приложение?</h3>
     <p class="text-sm text-[#5F5E5A]">Вы удаляете <strong id="delete-name"></strong>. Это действие нельзя отменить. Иконка и все скриншоты будут удалены.</p>
     <form id="delete-form" method="post" class="flex gap-3 justify-end">

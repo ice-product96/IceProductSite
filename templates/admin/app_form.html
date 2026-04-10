@@ -85,7 +85,7 @@
         {% if product and product.screenshots %}
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="screenshots-list">
           {% for ss in product.screenshots %}
-          <div class="relative group rounded-xl overflow-hidden border border-[#EAF3DE]">
+          <div class="relative group rounded-xl overflow-hidden border border-[#e0f7fa]">
             <img src="{{ ss.file_path }}" alt="Скриншот" class="w-full h-32 object-cover" />
             <form method="post" action="/admin/screenshots/{{ ss.id }}/delete"
                   class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
@@ -128,7 +128,7 @@
             <input type="checkbox" name="is_published" id="is-published"
                    class="sr-only peer" value="true"
                    {% if not product or product.is_published %}checked{% endif %} />
-            <div class="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-[#639922] transition-colors"></div>
+            <div class="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-[#00bcd4] transition-colors"></div>
             <div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
           </div>
           <span class="text-sm font-medium text-[#1a1a1a]">Опубликовано</span>
@@ -151,7 +151,7 @@
       <div class="admin-card flex flex-col gap-4">
         <h2 class="font-semibold text-[#1a1a1a]">Иконка <span class="text-sm font-normal text-[#5F5E5A]">(PNG/SVG, макс. 512 KB)</span></h2>
 
-        <div class="flex items-center justify-center h-28 bg-[#EAF3DE] rounded-xl" id="icon-preview-wrap">
+        <div class="flex items-center justify-center h-28 bg-[#e0f7fa] rounded-xl" id="icon-preview-wrap">
           {% if product and product.icon_path %}
             <img id="icon-preview" src="{{ product.icon_path }}" class="h-20 w-20 object-contain rounded-xl" alt="Иконка" />
           {% else %}
@@ -216,7 +216,7 @@
       const reader = new FileReader();
       reader.onload = e => {
         const div = document.createElement('div');
-        div.className = 'rounded-xl overflow-hidden border border-[#EAF3DE]';
+        div.className = 'rounded-xl overflow-hidden border border-[#e0f7fa]';
         div.innerHTML = `<img src="${e.target.result}" class="w-full h-32 object-cover" />`;
         container.appendChild(div);
       };

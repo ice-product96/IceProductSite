@@ -14,7 +14,7 @@
 
   <!-- Breadcrumbs -->
   <nav class="flex items-center gap-2 text-sm text-[#5F5E5A] mb-8">
-    <a href="/" class="hover:text-[#639922] transition-colors">Главная</a>
+    <a href="/" class="hover:text-[#00bcd4] transition-colors">Главная</a>
     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5F5E5A]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     <span class="text-[#1a1a1a]">{{ product.name }}</span>
   </nav>
@@ -27,10 +27,10 @@
       <!-- Header -->
       <div class="flex items-center gap-5">
         {% if product.icon_path %}
-          <img src="{{ product.icon_path }}" alt="{{ product.name }}" class="w-16 h-16 rounded-2xl object-contain bg-[#EAF3DE] p-2 flex-shrink-0" />
+          <img src="{{ product.icon_path }}" alt="{{ product.name }}" class="w-16 h-16 rounded-2xl object-contain bg-[#e0f7fa] p-2 flex-shrink-0" />
         {% else %}
-          <div class="w-16 h-16 rounded-2xl bg-[#EAF3DE] flex items-center justify-center flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="w-16 h-16 rounded-2xl bg-[#e0f7fa] flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
             </svg>
           </div>
@@ -43,7 +43,7 @@
 
       <!-- Screenshots slider -->
       {% if product.screenshots %}
-      <div class="rounded-2xl overflow-hidden border border-[#EAF3DE] relative" id="slider-wrap">
+      <div class="rounded-2xl overflow-hidden border border-[#e0f7fa] relative" id="slider-wrap">
         <div class="overflow-hidden">
           <div class="slider-track" id="slider-track">
             {% for ss in product.screenshots %}
@@ -54,10 +54,10 @@
           </div>
         </div>
         {% if product.screenshots|length > 1 %}
-        <button onclick="slideChange(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-[#EAF3DE]" aria-label="Назад">
+        <button onclick="slideChange(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-[#e0f7fa]" aria-label="Назад">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#1a1a1a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
-        <button onclick="slideChange(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-[#EAF3DE]" aria-label="Вперёд">
+        <button onclick="slideChange(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-[#e0f7fa]" aria-label="Вперёд">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#1a1a1a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
         <!-- Dots -->
@@ -84,7 +84,7 @@
     <div class="lg:col-span-2 flex flex-col gap-6">
 
       <!-- CTA card -->
-      <div class="bg-[#EAF3DE] rounded-2xl p-6 flex flex-col gap-4">
+      <div class="bg-[#e0f7fa] rounded-2xl p-6 flex flex-col gap-4">
         <h2 class="text-lg font-semibold text-[#1a1a1a]">Попробуйте бесплатно</h2>
         <p class="text-sm text-[#5F5E5A]">Откройте приложение и начните работу прямо сейчас — без регистрации.</p>
         {% if product.external_url %}
@@ -97,13 +97,13 @@
 
       <!-- Features -->
       {% if product.features %}
-      <div class="border border-[#EAF3DE] rounded-2xl p-6">
+      <div class="border border-[#e0f7fa] rounded-2xl p-6">
         <h2 class="text-lg font-semibold text-[#1a1a1a] mb-4">Ключевые возможности</h2>
         <ul class="flex flex-col gap-3">
           {% for feature in product.features %}
           <li class="flex items-start gap-3 text-sm text-[#5F5E5A]">
-            <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-[#EAF3DE] flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-[#e0f7fa] flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
             </span>
             {{ feature }}
           </li>
@@ -127,7 +127,7 @@
 
   function updateDots() {
     dots.forEach((d, i) => {
-      d.style.background = i === current ? '#639922' : 'rgba(255,255,255,0.6)';
+      d.style.background = i === current ? '#00bcd4' : 'rgba(255,255,255,0.6)';
     });
   }
 

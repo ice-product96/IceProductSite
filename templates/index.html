@@ -5,10 +5,10 @@
 {% block content %}
 
 <!-- HERO -->
-<section class="bg-[#EAF3DE] py-20 px-4 sm:px-6 lg:px-8">
+<section class="bg-[#e0f7fa] py-20 px-4 sm:px-6 lg:px-8">
   <div class="max-w-6xl mx-auto flex flex-col items-start gap-6">
-    <div class="flex items-center gap-3 mb-2">
-      <span class="text-4xl font-bold text-[#639922]">Айс</span><span class="text-4xl font-bold text-[#5F5E5A]">.</span><span class="text-4xl font-bold text-[#1a1a1a]">Продукт</span>
+    <div class="mb-2">
+      <span class="text-4xl font-bold text-[#00bcd4]">Айс</span><span class="text-4xl font-bold text-[#5F5E5A]">.</span><span class="text-4xl font-bold text-[#1a1a1a]">Продукт</span>
     </div>
     <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#1a1a1a] max-w-2xl leading-tight">
       {{ settings.slogan }}
@@ -33,12 +33,12 @@
       {% for product in apps %}
       <div class="card flex flex-col">
         <!-- Icon / thumbnail -->
-        <div class="bg-[#EAF3DE] h-44 flex items-center justify-center overflow-hidden">
+        <div class="bg-[#e0f7fa] h-44 flex items-center justify-center overflow-hidden">
           {% if product.icon_path %}
             <img src="{{ product.icon_path }}" alt="{{ product.name }}" class="h-24 w-24 object-contain rounded-xl" />
           {% else %}
-            <div class="h-20 w-20 rounded-xl bg-[#639922]/20 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-[#639922]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="h-20 w-20 rounded-xl bg-[#00bcd4]/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
               </svg>
             </div>
@@ -58,7 +58,7 @@
     </div>
     {% else %}
     <div class="text-center py-24 text-[#5F5E5A]">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4 text-[#EAF3DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4 text-[#e0f7fa]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
       </svg>
       <p class="text-lg">Продукты пока не добавлены.</p>

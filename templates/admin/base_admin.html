@@ -13,7 +13,7 @@
       theme: {
         extend: {
           colors: {
-            ice: { white: '#FFFFFF', light: '#EAF3DE', accent: '#639922', dark: '#1a1a1a', muted: '#5F5E5A' }
+            ice: { white: '#FFFFFF', light: '#e0f7fa', accent: '#00bcd4', dark: '#1a1a1a', muted: '#5F5E5A' }
           },
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           borderRadius: { 'xl': '12px', '2xl': '16px' }
@@ -22,19 +22,19 @@
     }
   </script>
   <style>
-    body { font-family: 'Inter', sans-serif; color: #1a1a1a; background: #f8faf5; }
-    .btn-accent { display:inline-flex;align-items:center;gap:6px;background:#639922;color:#fff;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
-    .btn-accent:hover { background:#517d1c; }
+    body { font-family: 'Inter', sans-serif; color: #1a1a1a; background: #f0fbfc; }
+    .btn-accent { display:inline-flex;align-items:center;gap:6px;background:#00bcd4;color:#fff;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
+    .btn-accent:hover { background:#0097a7; }
     .btn-danger { display:inline-flex;align-items:center;gap:6px;background:#fee2e2;color:#dc2626;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
     .btn-danger:hover { background:#fca5a5; }
     .btn-ghost { display:inline-flex;align-items:center;gap:6px;color:#5F5E5A;font-weight:500;padding:9px 18px;border-radius:10px;transition:background 0.15s;font-size:0.875rem; }
-    .btn-ghost:hover { background:#EAF3DE;color:#1a1a1a; }
+    .btn-ghost:hover { background:#e0f7fa;color:#1a1a1a; }
     .form-input { width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:9px 13px;font-size:0.875rem;outline:none;transition:border-color 0.15s;background:#fff; }
-    .form-input:focus { border-color:#639922; }
+    .form-input:focus { border-color:#00bcd4; }
     .form-label { font-size:0.8125rem;font-weight:500;color:#5F5E5A;margin-bottom:5px;display:block; }
     .admin-card { background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:24px; }
     .nav-link { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:0.875rem;color:#5F5E5A;transition:background 0.15s,color 0.15s; }
-    .nav-link:hover,.nav-link.active { background:#EAF3DE;color:#639922; }
+    .nav-link:hover,.nav-link.active { background:#e0f7fa;color:#00bcd4; }
     .nav-link.active { font-weight:500; }
   </style>
   {% block extra_head %}{% endblock %}
@@ -42,10 +42,10 @@
 <body class="min-h-screen flex">
 
   <!-- SIDEBAR -->
-  <aside class="w-56 flex-shrink-0 bg-white border-r border-[#EAF3DE] flex flex-col min-h-screen sticky top-0 h-screen">
-    <div class="p-5 border-b border-[#EAF3DE]">
-      <a href="/" class="flex items-center gap-1 font-semibold text-base">
-        <span class="text-[#639922] font-bold">Айс</span><span class="text-[#5F5E5A]">.</span><span class="text-[#1a1a1a]">Продукт</span>
+  <aside class="w-56 flex-shrink-0 bg-white border-r border-[#e0f7fa] flex flex-col min-h-screen sticky top-0 h-screen">
+    <div class="p-5 border-b border-[#e0f7fa]">
+      <a href="/" class="font-semibold text-base">
+        <span class="text-[#00bcd4] font-bold">Айс</span><span class="text-[#5F5E5A]">.</span><span class="text-[#1a1a1a]">Продукт</span>
       </a>
       <p class="text-xs text-[#5F5E5A] mt-0.5">Панель управления</p>
     </div>
@@ -63,7 +63,7 @@
         Сайт
       </a>
     </nav>
-    <div class="p-3 border-t border-[#EAF3DE]">
+    <div class="p-3 border-t border-[#e0f7fa]">
       <a href="/admin/logout" class="nav-link text-red-500 hover:bg-red-50 hover:text-red-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         Выйти
@@ -73,7 +73,7 @@
 
   <!-- CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen">
-    <header class="bg-white border-b border-[#EAF3DE] px-8 py-4 flex items-center justify-between">
+    <header class="bg-white border-b border-[#e0f7fa] px-8 py-4 flex items-center justify-between">
       <h1 class="text-lg font-semibold text-[#1a1a1a]">{% block page_title %}{% endblock %}</h1>
       <div class="flex items-center gap-3">{% block header_actions %}{% endblock %}</div>
     </header>

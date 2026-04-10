@@ -16,8 +16,8 @@
           colors: {
             ice: {
               white:   '#FFFFFF',
-              light:   '#EAF3DE',
-              accent:  '#639922',
+              light:   '#e0f7fa',
+              accent:  '#00bcd4',
               dark:    '#1a1a1a',
               muted:   '#5F5E5A',
             }
@@ -37,39 +37,39 @@
     body { font-family: 'Inter', sans-serif; color: #1a1a1a; background: #FFFFFF; }
     .btn-accent {
       display: inline-flex; align-items: center; gap: 6px;
-      background: #639922; color: #fff; font-weight: 500;
+      background: #00bcd4; color: #fff; font-weight: 500;
       padding: 10px 22px; border-radius: 12px;
       transition: background 0.15s;
     }
-    .btn-accent:hover { background: #517d1c; }
+    .btn-accent:hover { background: #0097a7; }
     .btn-outline {
       display: inline-flex; align-items: center; gap: 6px;
-      border: 1.5px solid #639922; color: #639922; font-weight: 500;
+      border: 1.5px solid #00bcd4; color: #00bcd4; font-weight: 500;
       padding: 9px 20px; border-radius: 12px;
       transition: background 0.15s, color 0.15s;
     }
-    .btn-outline:hover { background: #639922; color: #fff; }
+    .btn-outline:hover { background: #00bcd4; color: #fff; }
     .card {
-      background: #FFFFFF; border: 1.5px solid #EAF3DE;
+      background: #FFFFFF; border: 1.5px solid #e0f7fa;
       border-radius: 16px; overflow: hidden;
       transition: border-color 0.15s;
     }
-    .card:hover { border-color: #639922; }
+    .card:hover { border-color: #00bcd4; }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen flex flex-col">
 
   <!-- NAV -->
-  <header class="sticky top-0 z-30 bg-white border-b border-[#EAF3DE]">
+  <header class="sticky top-0 z-30 bg-white border-b border-[#e0f7fa]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-      <a href="/" class="flex items-center gap-2 font-semibold text-[#1a1a1a] text-lg tracking-tight">
-        <span class="text-[#639922] font-bold">Айс</span><span class="text-[#5F5E5A]">.</span><span>Продукт</span>
+      <a href="/" class="font-semibold text-[#1a1a1a] text-lg tracking-tight">
+        <span class="text-[#00bcd4] font-bold">Айс</span><span class="text-[#5F5E5A]">.</span><span>Продукт</span>
       </a>
       <nav class="flex items-center gap-6 text-sm text-[#5F5E5A]">
-        <a href="/#products" class="hover:text-[#639922] transition-colors">Продукты</a>
+        <a href="/#products" class="hover:text-[#00bcd4] transition-colors">Продукты</a>
         {% if request.url.path.startswith('/admin') %}
-          <a href="/admin/logout" class="hover:text-[#639922] transition-colors">Выйти</a>
+          <a href="/admin/logout" class="hover:text-[#00bcd4] transition-colors">Выйти</a>
         {% endif %}
       </nav>
     </div>
@@ -81,7 +81,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-[#EAF3DE] mt-auto">
+  <footer class="bg-[#e0f7fa] mt-auto">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#5F5E5A]">
       <span>© {{ settings.meta_title or "Айс.Продукт" }} {{ 2026 }}</span>
       <span>Умные инструменты для современных команд</span>

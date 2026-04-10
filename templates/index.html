@@ -1,44 +1,197 @@
 {% extends "base.html" %}
 {% block title %}{{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
 
+{% block extra_head %}
+<style>
+  /* ── Page-flip card ──────────────────────────────────────────────── */
+  .flip-stack {
+    position: relative;
+    width: 300px;
+    height: 340px;
+    perspective: 1200px;
+  }
+
+  /* Shadow card behind (static) */
+  .flip-shadow {
+    position: absolute;
+    inset: 0;
+    top: 14px; left: 14px;
+    background: linear-gradient(135deg, #b2ebf2, #c8e6c9);
+    border-radius: 20px;
+    z-index: 0;
+  }
+
+  /* The visible card */
+  .flip-card {
+    position: absolute;
+    inset: 0;
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #e0f7fa;
+    box-shadow: 0 20px 40px rgba(0,188,212,0.18);
+    z-index: 1;
+    transform-origin: right top;   /* ← pivot: правый верхний угол */
+    transition: none;
+    overflow: hidden;
+    will-change: transform, opacity;
+  }
+
+  /* State: animating OUT — карточка уходит вверх-влево вокруг правого верхнего угла */
+  .flip-card.leaving {
+    animation: page-flip-out 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* State: entering — новая карточка появляется */
+  .flip-card.entering {
+    animation: page-flip-in 0.45s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+  }
+
+  @keyframes page-flip-out {
+    0%   { transform: rotate(0deg) translateY(0);   opacity: 1; }
+    40%  { transform: rotate(-8deg) translateY(-20px); opacity: 0.9; }
+    100% { transform: rotate(-25deg) translateY(-110%); opacity: 0; }
+  }
+
+  @keyframes page-flip-in {
+    0%   { transform: rotate(-20deg) translateY(-80%); opacity: 0; }
+    100% { transform: rotate(0deg) translateY(0);      opacity: 1; }
+  }
+
+  /* Progress bar */
+  .app-progress {
+    height: 6px; border-radius: 999px;
+    background: linear-gradient(to right, #26c6da, #66bb6a);
+  }
+
+  /* Feature badges */
+  .app-badge {
+    background: #e0f7fa;
+    border-radius: 10px;
+    padding: 6px 4px;
+    text-align: center;
+    flex: 1;
+  }
+
+  /* Action button */
+  .app-btn {
+    display: block; width: 100%; text-align: center;
+    background: linear-gradient(to right, #26c6da, #66bb6a);
+    color: white; font-size: 0.78rem; font-weight: 500;
+    padding: 10px 12px; border-radius: 10px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(38,198,218,0.35);
+    transition: opacity 0.15s;
+  }
+  .app-btn:hover { opacity: 0.88; }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <!-- HERO -->
 <section class="relative overflow-hidden py-24 px-4 sm:px-6 lg:px-8"
          style="background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);">
 
-  <!-- Decorative blobs (как на ice-shield.ru) -->
+  <!-- Decorative blobs -->
   <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none opacity-40"
        style="background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);"></div>
   <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none opacity-30"
        style="background: radial-gradient(circle, #81c784 0%, transparent 70%);"></div>
-  <!-- Progress/scan bar accent -->
   <div class="absolute bottom-0 left-0 right-0 h-1"
        style="background: linear-gradient(to right, #26c6da, #66bb6a);"></div>
 
-  <div class="max-w-6xl mx-auto relative flex flex-col items-start gap-7">
+  <div class="max-w-6xl mx-auto relative">
+    <div class="flex flex-col lg:flex-row items-center gap-12">
 
-    <!-- Brand -->
-    <div class="text-5xl sm:text-6xl font-bold">
-      <span class="grad-text">Айс.Продукт</span>
-    </div>
+      <!-- LEFT: text -->
+      <div class="flex-1 flex flex-col items-start gap-7">
+        <div class="text-5xl sm:text-6xl font-bold">
+          <span class="grad-text">Айс.Продукт</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold max-w-2xl leading-tight text-gray-900">
+          {{ settings.slogan }}
+        </h1>
+        <p class="text-gray-600 text-lg max-w-xl leading-relaxed">
+          {{ settings.short_description }}
+        </p>
+        <a href="#products" class="btn-accent text-base mt-2">
+          Наши продукты
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </a>
+      </div>
 
-    <!-- Slogan — gradient heading как на ice-shield.ru -->
-    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold max-w-2xl leading-tight text-gray-900">
-      {{ settings.slogan }}
-    </h1>
+      <!-- RIGHT: flip-card stack (только если есть приложения) -->
+      {% if apps %}
+      <div class="flex-shrink-0 hidden md:block">
+        <div class="flip-stack" id="flip-stack">
 
-    <p class="text-gray-600 text-lg max-w-xl leading-relaxed">
-      {{ settings.short_description }}
-    </p>
+          <!-- Shadow -->
+          <div class="flip-shadow"></div>
 
-    <a href="#products" class="btn-accent text-base mt-2">
-      Наши продукты
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-      </svg>
-    </a>
+          <!-- Card template — заполняется JS -->
+          <div class="flip-card" id="flip-card">
 
+            <!-- Card header -->
+            <div class="px-5 pt-5 pb-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div id="fc-icon" class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 icon-grad">
+                  <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
+                  </svg>
+                </div>
+                <span id="fc-name" class="font-bold text-sm text-gray-800 truncate max-w-[160px]"></span>
+              </div>
+              <span class="text-xs font-medium px-2.5 py-1 rounded-full text-white"
+                    style="background: linear-gradient(to right, #26c6da, #66bb6a);">Доступно</span>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="px-5 pb-4">
+              <div class="flex justify-between text-xs text-gray-400 mb-1.5">
+                <span>Статус</span><span>Активно</span>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5">
+                <div class="app-progress" style="width:100%"></div>
+              </div>
+            </div>
+
+            <!-- Screenshot / icon area -->
+            <div id="fc-img-wrap" class="mx-5 rounded-xl overflow-hidden mb-4 flex items-center justify-center"
+                 style="height:110px; background: linear-gradient(135deg,#e0f7fa,#e8f5e9);">
+              <img id="fc-img" src="" alt="" class="h-full w-full object-cover hidden" />
+              <div id="fc-placeholder" class="icon-grad w-16 h-16 rounded-2xl flex items-center justify-center"
+                   style="box-shadow:0 6px 18px rgba(38,198,218,0.4);">
+                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Short description -->
+            <div class="px-5 pb-3">
+              <p id="fc-desc" class="text-xs text-gray-500 leading-relaxed line-clamp-2"></p>
+            </div>
+
+            <!-- Feature badges -->
+            <div id="fc-features" class="px-5 pb-4 flex gap-2"></div>
+
+            <!-- CTA button -->
+            <div class="px-5 pb-5">
+              <a id="fc-btn" href="#" class="app-btn">Перейти к приложению →</a>
+            </div>
+
+          </div><!-- /.flip-card -->
+
+          <!-- Dots indicator -->
+          <div id="fc-dots" class="absolute -bottom-7 left-1/2 -translate-x-1/2 flex gap-2"></div>
+
+        </div><!-- /.flip-stack -->
+      </div>
+      {% endif %}
+
+    </div><!-- /.flex -->
   </div>
 </section>
 
@@ -52,24 +205,20 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for product in apps %}
       <div class="card flex flex-col">
-
-        <!-- Card top — gradient background -->
         <div class="h-44 flex items-center justify-center overflow-hidden relative"
              style="background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 60%, #e8f5e9 100%);">
           {% if product.icon_path %}
             <img src="{{ product.icon_path }}" alt="{{ product.name }}"
                  class="h-24 w-24 object-contain rounded-xl relative z-10" />
           {% else %}
-            <div class="h-20 w-20 rounded-xl icon-grad flex items-center justify-center relative z-10
-                        shadow-lg" style="box-shadow:0 8px 20px rgba(38,198,218,0.4);">
+            <div class="h-20 w-20 rounded-xl icon-grad flex items-center justify-center relative z-10"
+                 style="box-shadow:0 8px 20px rgba(38,198,218,0.4);">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
               </svg>
             </div>
           {% endif %}
         </div>
-
-        <!-- Card content -->
         <div class="p-6 flex flex-col gap-3 flex-1 bg-white">
           <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
           <p class="text-gray-500 text-sm leading-relaxed flex-1">{{ product.short_description }}</p>
@@ -83,20 +232,18 @@
       </div>
       {% endfor %}
     </div>
-
     {% else %}
     <div class="text-center py-24 text-gray-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4 text-ice-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
       </svg>
       <p class="text-lg">Продукты пока не добавлены.</p>
     </div>
     {% endif %}
-
   </div>
 </section>
 
-<!-- CTA Banner — как секция pricing CTA на ice-shield.ru -->
+<!-- CTA Banner -->
 {% if apps %}
 <section class="py-16 px-4 sm:px-6 lg:px-8"
          style="background: linear-gradient(to right, #00bcd4, #4caf50);">
@@ -104,7 +251,7 @@
     <h2 class="text-2xl sm:text-3xl font-semibold text-white">Готовы начать работу?</h2>
     <p class="text-white/80 max-w-md">Выберите продукт и начните использовать бесплатно уже сегодня.</p>
     <a href="#products" class="inline-flex items-center gap-2 bg-white font-medium px-6 py-3 rounded-xl transition-opacity hover:opacity-90"
-       style="color: #00bcd4; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+       style="color:#00bcd4; box-shadow:0 4px 14px rgba(0,0,0,0.15);">
       Смотреть продукты
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -114,4 +261,130 @@
 </section>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_scripts %}
+{% if apps %}
+<script>
+(function () {
+  // Data from server
+  const APPS = [
+    {% for product in apps %}
+    {
+      name:     {{ product.name | tojson }},
+      slug:     {{ product.slug | tojson }},
+      desc:     {{ product.short_description | tojson }},
+      icon:     {{ product.icon_path | tojson }},
+      url:      {{ product.external_url | tojson }},
+      features: {{ product.features | tojson if product.features else '[]' }},
+    },
+    {% endfor %}
+  ];
+
+  if (APPS.length === 0) return;
+
+  let current  = 0;
+  let animating = false;
+  const INTERVAL = 4000; // ms between flips
+
+  const card      = document.getElementById('flip-card');
+  const fcName    = document.getElementById('fc-name');
+  const fcDesc    = document.getElementById('fc-desc');
+  const fcBtn     = document.getElementById('fc-btn');
+  const fcImg     = document.getElementById('fc-img');
+  const fcPh      = document.getElementById('fc-placeholder');
+  const fcFeats   = document.getElementById('fc-features');
+  const dotsWrap  = document.getElementById('fc-dots');
+
+  // Build dots
+  APPS.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'w-2 h-2 rounded-full transition-all';
+    d.style.background = i === 0 ? 'linear-gradient(to right,#26c6da,#66bb6a)' : '#e0f7fa';
+    d.style.transform  = i === 0 ? 'scale(1.3)' : 'scale(1)';
+    d.setAttribute('aria-label', 'Приложение ' + (i + 1));
+    d.addEventListener('click', () => { if (!animating) flipTo(i); });
+    dotsWrap.appendChild(d);
+  });
+
+  function updateDots(idx) {
+    [...dotsWrap.children].forEach((d, i) => {
+      d.style.background = i === idx ? 'linear-gradient(to right,#26c6da,#66bb6a)' : '#e0f7fa';
+      d.style.transform  = i === idx ? 'scale(1.3)' : 'scale(1)';
+    });
+  }
+
+  function fillCard(app) {
+    fcName.textContent = app.name;
+    fcDesc.textContent = app.desc;
+
+    // Icon / screenshot
+    if (app.icon) {
+      fcImg.src = app.icon;
+      fcImg.alt = app.name;
+      fcImg.classList.remove('hidden');
+      fcPh.classList.add('hidden');
+    } else {
+      fcImg.classList.add('hidden');
+      fcPh.classList.remove('hidden');
+    }
+
+    // Button
+    const target = app.url || ('/app/' + app.slug);
+    fcBtn.href = target;
+    fcBtn.textContent = app.url ? 'Перейти к приложению →' : 'Подробнее →';
+
+    // Features (max 3)
+    fcFeats.innerHTML = '';
+    (app.features || []).slice(0, 3).forEach(f => {
+      const b = document.createElement('div');
+      b.className = 'app-badge';
+      b.innerHTML = `<div style="font-size:0.65rem;color:#00838f;line-height:1.3;">${f}</div>`;
+      fcFeats.appendChild(b);
+    });
+  }
+
+  function flipTo(nextIdx) {
+    if (nextIdx === current || animating) return;
+    animating = true;
+
+    // 1. Animate current card OUT
+    card.classList.add('leaving');
+
+    card.addEventListener('animationend', function onOut() {
+      card.removeEventListener('animationend', onOut);
+      card.classList.remove('leaving');
+
+      // 2. Fill with next app data (card is invisible)
+      current = nextIdx;
+      fillCard(APPS[current]);
+      updateDots(current);
+
+      // 3. Animate new content IN
+      card.classList.add('entering');
+      card.addEventListener('animationend', function onIn() {
+        card.removeEventListener('animationend', onIn);
+        card.classList.remove('entering');
+        animating = false;
+      }, { once: true });
+    }, { once: true });
+  }
+
+  function flipNext() {
+    flipTo((current + 1) % APPS.length);
+  }
+
+  // Init first card
+  fillCard(APPS[0]);
+
+  // Auto-flip
+  let timer = setInterval(flipNext, INTERVAL);
+
+  // Pause on hover
+  const stack = document.getElementById('flip-stack');
+  stack.addEventListener('mouseenter', () => clearInterval(timer));
+  stack.addEventListener('mouseleave', () => { timer = setInterval(flipNext, INTERVAL); });
+})();
+</script>
+{% endif %}
 {% endblock %}

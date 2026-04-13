@@ -16,6 +16,9 @@ from sqlalchemy.orm import Session
 from unidecode import unidecode
 import re
 
+import bleach
+from markupsafe import Markup, escape
+
 load_dotenv()
 
 from auth import (
@@ -44,6 +47,60 @@ for d in (ICONS_DIR, SCREENSHOTS_DIR):
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+_FULL_DESC_TAGS = frozenset(
+    {
+        "p",
+        "br",
+        "div",
+        "strong",
+        "b",
+        "em",
+        "i",
+        "u",
+        "s",
+        "h2",
+        "h3",
+        "h4",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "blockquote",
+    }
+)
+_FULL_DESC_ATTRS = {"a": ["href", "title", "target", "rel"]}
+_FULL_DESC_RE = re.compile(
+    r"</?(?:p|div|h[1-6]|ul|ol|li|strong|b|em|i|u|a|br|blockquote)\b",
+    re.I,
+)
+
+
+def sanitize_full_description(html: str) -> str:
+    if not html:
+        return ""
+    return bleach.clean(
+        html.strip(),
+        tags=_FULL_DESC_TAGS,
+        attributes=_FULL_DESC_ATTRS,
+        protocols=["http", "https", "mailto"],
+        strip=True,
+    )
+
+
+def full_description_html(value: Optional[str]) -> Markup:
+    if not value:
+        return Markup("")
+    cleaned = sanitize_full_description(value)
+    if _FULL_DESC_RE.search(cleaned):
+        return Markup(cleaned)
+    return Markup(
+        '<div class="text-gray-500 leading-relaxed whitespace-pre-wrap">'
+        f"{escape(cleaned)}</div>"
+    )
+
+
+templates.env.filters["full_description_html"] = full_description_html
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 MAX_ICON_SIZE = int(os.getenv("MAX_ICON_SIZE", 524288))       # 512 KB
@@ -451,7 +508,7 @@ async def _process_app_form(
     product.name = name
     product.slug = slug
     product.short_description = short_description[:160].strip()
-    product.full_description = full_description.strip()
+    product.full_description = sanitize_full_description(full_description)
     product.features = features
     product.external_url = external_url.strip()
     product.is_published = is_published

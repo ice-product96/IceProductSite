@@ -6,6 +6,18 @@
 {% block extra_head %}
 <style>
   .slider-track { display: flex; transition: transform 0.35s ease; }
+  .prose-description p { margin-bottom: 0.75em; }
+  .prose-description p:last-child { margin-bottom: 0; }
+  .prose-description h2 { font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 1em 0 0.5em; }
+  .prose-description h2:first-child { margin-top: 0; }
+  .prose-description h3, .prose-description h4 { font-size: 1.125rem; font-weight: 600; color: #374151; margin: 0.75em 0 0.5em; }
+  .prose-description ul, .prose-description ol { margin: 0.5em 0 0.75em 1.25rem; list-style-position: outside; }
+  .prose-description ul { list-style-type: disc; }
+  .prose-description ol { list-style-type: decimal; }
+  .prose-description li { margin-bottom: 0.25em; }
+  .prose-description a { color: #00bcd4; text-decoration: underline; }
+  .prose-description a:hover { color: #0097a7; }
+  .prose-description blockquote { border-left: 3px solid #e0f7fa; padding-left: 1rem; margin: 0.75em 0; color: #6b7280; }
 </style>
 {% endblock %}
 
@@ -93,7 +105,7 @@
       {% if product.full_description %}
       <div>
         <h2 class="text-xl font-semibold text-gray-800 mb-3">Описание</h2>
-        <div class="text-gray-500 leading-relaxed whitespace-pre-wrap">{{ product.full_description }}</div>
+        <div class="prose-description text-gray-500 leading-relaxed">{{ product.full_description | full_description_html }}</div>
       </div>
       {% endif %}
 

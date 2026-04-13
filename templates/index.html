@@ -183,7 +183,7 @@
 
       <!-- RIGHT: flip-card stack (без w-full в ряду lg — иначе колонка тянет 100% и вылезает за экран) -->
       {% if apps %}
-      <div class="hidden sm:flex shrink-0 justify-center lg:justify-end w-full max-w-[420px] lg:w-auto lg:max-w-[min(420px,100%)]">
+      <div class="flex shrink-0 justify-center lg:justify-end w-full max-w-[420px] lg:w-auto lg:max-w-[min(420px,100%)]">
         <div class="flip-stack" id="flip-stack">
 
           <div class="flip-shadow" aria-hidden="true"></div>
@@ -345,6 +345,12 @@
   const fcPh      = document.getElementById('fc-placeholder');
   const fcFeats   = document.getElementById('fc-features');
   const dotsWrap  = document.getElementById('fc-dots');
+  const stack     = document.getElementById('flip-stack');
+
+  // If any required node is missing, do not crash the page.
+  if (!card || !fcName || !fcDesc || !fcBtn || !fcImg || !fcPh || !fcFeats || !dotsWrap || !stack) {
+    return;
+  }
 
   // Build dots
   APPS.forEach((_, i) => {
@@ -442,7 +448,6 @@
   let timer = setInterval(flipNext, INTERVAL);
 
   // Pause on hover
-  const stack = document.getElementById('flip-stack');
   stack.addEventListener('mouseenter', () => clearInterval(timer));
   stack.addEventListener('mouseleave', () => { timer = setInterval(flipNext, INTERVAL); });
 })();

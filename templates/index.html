@@ -14,6 +14,7 @@
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
+    touch-action: pan-y;
   }
 
   @media (min-width: 1024px) {
@@ -54,6 +55,7 @@
     transition: none;
     overflow: hidden;
     will-change: transform, opacity;
+    touch-action: pan-y;
   }
 
   .flip-card.leaving {
@@ -173,7 +175,7 @@
           {{ settings.short_description }}
         </p>
         <a href="#products" class="btn-accent text-base mt-1">
-          Наши продукты
+          Наши решения
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
@@ -248,7 +250,7 @@
 <section id="products" class="py-16 px-4 sm:px-6 lg:px-8"
          style="background: linear-gradient(to right, #e0f7fa, #ffffff);">
   <div class="max-w-6xl mx-auto">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-10">Наши продукты</h2>
+    <h2 class="text-2xl font-semibold text-gray-800 mb-10">Наши решения</h2>
 
     {% if apps %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -286,7 +288,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
       </svg>
-      <p class="text-lg">Продукты пока не добавлены.</p>
+      <p class="text-lg">Решения пока не добавлены.</p>
     </div>
     {% endif %}
   </div>
@@ -301,7 +303,7 @@
     <p class="text-white/80 max-w-md">Выберите продукт и начните использовать бесплатно уже сегодня.</p>
     <a href="#products" class="inline-flex items-center gap-2 bg-white font-medium px-6 py-3 rounded-xl transition-opacity hover:opacity-90"
        style="color:#00bcd4; box-shadow:0 4px 14px rgba(0,0,0,0.15);">
-      Смотреть продукты
+      Смотреть решения
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
       </svg>
@@ -335,6 +337,10 @@
   let current  = 0;
   let animating = false;
   const INTERVAL = 4000; // ms between flips
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const useFlipAnimation = !isCoarsePointer && !prefersReducedMotion;
+  const useAutoFlip = !isCoarsePointer && !prefersReducedMotion;
 
   const card      = document.getElementById('flip-card');
   const fcName    = document.getElementById('fc-name');
@@ -412,8 +418,14 @@
 
   function flipTo(nextIdx) {
     if (nextIdx === current || animating) return;
-    animating = true;
+    if (!useFlipAnimation) {
+      current = nextIdx;
+      fillCard(APPS[current]);
+      updateDots(current);
+      return;
+    }
 
+    animating = true;
     // 1. Animate current card OUT
     card.classList.add('leaving');
 
@@ -443,12 +455,20 @@
   // Init first card
   fillCard(APPS[0]);
 
-  // Auto-flip
-  let timer = setInterval(flipNext, INTERVAL);
+  // Auto-flip (desktop only to keep mobile scrolling smooth)
+  let timer = null;
+  if (useAutoFlip) {
+    timer = setInterval(flipNext, INTERVAL);
+  }
 
   // Pause on hover
-  stack.addEventListener('mouseenter', () => clearInterval(timer));
-  stack.addEventListener('mouseleave', () => { timer = setInterval(flipNext, INTERVAL); });
+  stack.addEventListener('mouseenter', () => {
+    if (timer) clearInterval(timer);
+  });
+  stack.addEventListener('mouseleave', () => {
+    if (!useAutoFlip) return;
+    timer = setInterval(flipNext, INTERVAL);
+  });
 })();
 </script>
 {% endif %}

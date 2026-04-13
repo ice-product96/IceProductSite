@@ -102,7 +102,7 @@
       {% endif %}
 
       <!-- Full description -->
-      {% set raw_description = (product.full_description or '') | trim %}
+      {% set raw_description = product.full_description or '' %}
       {% if raw_description %}
       <div>
         <h2 class="text-xl font-semibold text-gray-800 mb-3">Описание</h2>

@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, selectinload
 from unidecode import unidecode
 import re
 
@@ -316,16 +316,19 @@ async def app_detail(slug: str, request: Request, db: Session = Depends(get_db))
     settings = get_settings(db)
     product = (
         db.query(App)
-        .options(joinedload(App.screenshots))
+        .options(selectinload(App.screenshots))
         .filter(App.slug == slug, App.is_published == True)
         .first()
     )
     if not product:
         raise HTTPException(status_code=404)
+    # Не полагаемся на truthiness ORM-значения: strip() — как в админке.
+    raw_desc = product.full_description
+    if isinstance(raw_desc, bytes):
+        raw_desc = raw_desc.decode("utf-8", errors="replace")
+    has_long_desc = bool((raw_desc or "").strip())
     description_html = (
-        full_description_html(product.full_description)
-        if product.full_description
-        else None
+        full_description_html(raw_desc) if has_long_desc else None
     )
     return templates.TemplateResponse(
         "app_detail.html",

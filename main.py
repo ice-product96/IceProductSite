@@ -76,11 +76,28 @@ _FULL_DESC_RE = re.compile(
 )
 
 
+def _utf8_safe_text(text: Optional[str]) -> str:
+    """Lone UTF-16 surrogates (possible after paste from Office/HTML) cannot be
+    encoded as UTF-8 and crash the ASGI stack with UnicodeEncodeError → 500."""
+    if text is None:
+        return ""
+    if not isinstance(text, str):
+        text = str(text)
+    if not text:
+        return text
+    return text.encode("utf-8", errors="replace").decode("utf-8")
+
+
 def sanitize_full_description(html: str) -> str:
+    if html is None:
+        return ""
+    if not isinstance(html, str):
+        html = str(html)
+    html = _utf8_safe_text(html.strip())
     if not html:
         return ""
     return bleach.clean(
-        html.strip(),
+        html,
         tags=_FULL_DESC_TAGS,
         attributes=_FULL_DESC_ATTRS,
         protocols=["http", "https", "mailto"],
@@ -101,6 +118,7 @@ def full_description_html(value: Optional[str]) -> Markup:
 
 
 templates.env.filters["full_description_html"] = full_description_html
+templates.env.filters["utf8_safe"] = _utf8_safe_text
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 MAX_ICON_SIZE = int(os.getenv("MAX_ICON_SIZE", 524288))       # 512 KB

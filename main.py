@@ -31,7 +31,7 @@ from auth import (
     validate_csrf_token,
     verify_admin,
 )
-from database import Base, engine, get_db
+from database import Base, engine, get_db, SessionLocal
 from models import App, AppScreenshot, SiteSettings
 
 # ── App setup ─────────────────────────────────────────────────────────────────
@@ -115,13 +115,21 @@ def sanitize_full_description(html: str) -> str:
 def full_description_html(value: Optional[str]) -> Markup:
     if not value:
         return Markup("")
-    cleaned = sanitize_full_description(value)
-    if _FULL_DESC_RE.search(cleaned):
-        return Markup(cleaned)
-    return Markup(
-        '<div class="text-gray-500 leading-relaxed whitespace-pre-wrap">'
-        f"{escape(cleaned)}</div>"
-    )
+    try:
+        cleaned = sanitize_full_description(value)
+        cleaned = _utf8_safe_text(cleaned)
+        if _FULL_DESC_RE.search(cleaned):
+            return Markup(cleaned)
+        return Markup(
+            '<div class="text-gray-500 leading-relaxed whitespace-pre-wrap">'
+            f"{escape(cleaned)}</div>"
+        )
+    except Exception:
+        plain = _utf8_safe_text(re.sub(r"<[^>]+>", "", str(value)))
+        return Markup(
+            '<div class="text-gray-500 leading-relaxed whitespace-pre-wrap">'
+            f"{escape(plain)}</div>"
+        )
 
 
 templates.env.filters["full_description_html"] = full_description_html
@@ -131,7 +139,8 @@ templates.env.filters["utf8_safe"] = _utf8_safe_text
 def _jinja_finalize(value):
     """Normalize all template text output so the HTML response always encodes as UTF-8."""
     if isinstance(value, Markup):
-        return value
+        # Surrogates inside Markup (e.g. WYSIWYG HTML) still break response encoding.
+        return Markup(_utf8_safe_text(str(value)))
     if isinstance(value, str):
         return _utf8_safe_text(value)
     return value
@@ -260,20 +269,26 @@ def check_csrf(request: Request, csrf_token: str) -> bool:
 
 @app.exception_handler(404)
 async def not_found(request: Request, exc):
-    db = next(get_db())
-    settings = get_settings(db)
-    return templates.TemplateResponse(
-        "404.html", {"request": request, "settings": settings}, status_code=404
-    )
+    db = SessionLocal()
+    try:
+        settings = get_settings(db)
+        return templates.TemplateResponse(
+            "404.html", {"request": request, "settings": settings}, status_code=404
+        )
+    finally:
+        db.close()
 
 
 @app.exception_handler(500)
 async def server_error(request: Request, exc):
-    db = next(get_db())
-    settings = get_settings(db)
-    return templates.TemplateResponse(
-        "500.html", {"request": request, "settings": settings}, status_code=500
-    )
+    db = SessionLocal()
+    try:
+        settings = get_settings(db)
+        return templates.TemplateResponse(
+            "500.html", {"request": request, "settings": settings}, status_code=500
+        )
+    finally:
+        db.close()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -102,11 +102,11 @@
       {% endif %}
 
       <!-- Full description -->
-      {% set rendered_description = description_html if description_html is not none else (product.full_description | full_description_html) %}
-      {% if rendered_description %}
+      {% set raw_description = (product.full_description or '') | trim %}
+      {% if raw_description %}
       <div>
         <h2 class="text-xl font-semibold text-gray-800 mb-3">Описание</h2>
-        <div class="prose-description text-gray-500 leading-relaxed">{{ rendered_description | safe }}</div>
+        <div class="prose-description text-gray-500 leading-relaxed">{{ raw_description | full_description_html | safe }}</div>
       </div>
       {% endif %}
 

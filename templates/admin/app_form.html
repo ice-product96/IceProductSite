@@ -182,24 +182,33 @@
 {% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js"></script>
 <script>
-  tinymce.init({
-    selector: '#full_description',
-    height: 360,
-    menubar: false,
-    license_key: 'gpl',
-    plugins: 'lists link autoresize',
-    toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link removeformat',
-    block_formats: 'Paragraph=p; Heading 2=h2; Heading 3=h3',
-    branding: false,
-    promotion: false,
-    relative_urls: false,
-    convert_urls: false,
-    content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: #1a1a1a; }',
-  });
+  if (typeof tinymce !== 'undefined') {
+    tinymce.init({
+      selector: '#full_description',
+      height: 360,
+      menubar: false,
+      license_key: 'gpl',
+      plugins: 'lists link autoresize',
+      toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link removeformat',
+      block_formats: 'Paragraph=p; Heading 2=h2; Heading 3=h3',
+      branding: false,
+      promotion: false,
+      relative_urls: false,
+      convert_urls: false,
+      content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: #1a1a1a; }',
+      setup: function (editor) {
+        const sync = () => editor.save();
+        editor.on('change input undo redo keyup blur', sync);
+      },
+    });
+  }
 
-  document.getElementById('app-form').addEventListener('submit', function () {
-    if (typeof tinymce !== 'undefined') tinymce.triggerSave();
-  });
+  const appForm = document.getElementById('app-form');
+  if (appForm) {
+    appForm.addEventListener('submit', function () {
+      if (typeof tinymce !== 'undefined') tinymce.triggerSave();
+    });
+  }
 </script>
 <script>
   // Auto-generate slug from name

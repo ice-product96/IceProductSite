@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from unidecode import unidecode
 import re
 
@@ -311,17 +311,30 @@ async def home(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/app/{slug}", response_class=HTMLResponse)
 async def app_detail(slug: str, request: Request, db: Session = Depends(get_db)):
+    # Сначала настройки: при первом запуске get_settings делает commit(), из‑за чего
+    # все уже загруженные ORM-объекты помечаются expired. Загружаем продукт после этого.
+    settings = get_settings(db)
     product = (
         db.query(App)
+        .options(joinedload(App.screenshots))
         .filter(App.slug == slug, App.is_published == True)
         .first()
     )
     if not product:
         raise HTTPException(status_code=404)
-    settings = get_settings(db)
+    description_html = (
+        full_description_html(product.full_description)
+        if product.full_description
+        else None
+    )
     return templates.TemplateResponse(
         "app_detail.html",
-        {"request": request, "settings": settings, "product": product},
+        {
+            "request": request,
+            "settings": settings,
+            "product": product,
+            "description_html": description_html,
+        },
     )
 
 

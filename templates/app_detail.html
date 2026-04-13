@@ -6,6 +6,19 @@
 {% block extra_head %}
 <style>
   .slider-track { display: flex; transition: transform 0.35s ease; }
+  /* Единая высота области превью: картинки разного размера вписываются пропорционально */
+  .screenshot-slide {
+    min-height: min(26rem, 52vh);
+    height: min(26rem, 52vh);
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+  .screenshot-slide img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
   .prose-description p { margin-bottom: 0.75em; }
   .prose-description p:last-child { margin-bottom: 0; }
   .prose-description h2 { font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 1em 0 0.5em; }
@@ -69,35 +82,76 @@
         <div class="overflow-hidden">
           <div class="slider-track" id="slider-track">
             {% for ss in product.screenshots %}
-            <div class="min-w-full">
-              <img src="{{ ss.file_path }}" alt="Скриншот {{ loop.index }}" class="w-full object-cover max-h-80" />
+            <div class="min-w-full screenshot-slide flex items-center justify-center p-3 sm:p-5">
+              <button type="button"
+                      class="group relative max-h-full max-w-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#26c6da] rounded-xl"
+                      onclick="openScreenshotModal({{ loop.index0 }})"
+                      aria-label="Открыть скриншот {{ loop.index }} во весь экран">
+                <img src="{{ ss.file_path }}" alt="Скриншот {{ loop.index }}"
+                     class="rounded-lg shadow-sm transition-transform duration-200 group-hover:scale-[1.01] cursor-zoom-in" />
+              </button>
             </div>
             {% endfor %}
           </div>
         </div>
         {% if product.screenshots|length > 1 %}
-        <button onclick="slideChange(-1)"
-                class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-ice-100"
+        <button type="button" onclick="slideChange(-1)"
+                class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-ice-100 z-10"
                 aria-label="Назад">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
         </button>
-        <button onclick="slideChange(1)"
-                class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-ice-100"
+        <button type="button" onclick="slideChange(1)"
+                class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 rounded-xl p-2 hover:bg-white transition-colors border border-ice-100 z-10"
                 aria-label="Вперёд">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
         </button>
-        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2" id="slider-dots">
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10" id="slider-dots">
           {% for ss in product.screenshots %}
-          <button onclick="slideTo({{ loop.index0 }})"
+          <button type="button" onclick="slideTo({{ loop.index0 }})"
                   class="w-2 h-2 rounded-full bg-white/60 transition-all dot"
                   data-index="{{ loop.index0 }}" aria-label="Слайд {{ loop.index }}"></button>
           {% endfor %}
         </div>
         {% endif %}
+      </div>
+
+      <!-- Полноэкранный просмотр -->
+      <div id="screenshot-modal"
+           class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/92 p-4 sm:p-8"
+           style="display: none;"
+           role="dialog"
+           aria-modal="true"
+           aria-hidden="true"
+           aria-label="Просмотр скриншота">
+        <button type="button"
+                onclick="closeScreenshotModal()"
+                class="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                aria-label="Закрыть">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        {% if product.screenshots|length > 1 %}
+        <button type="button" id="modal-slide-prev"
+                class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                aria-label="Предыдущий скриншот">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <button type="button" id="modal-slide-next"
+                class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                aria-label="Следующий скриншот">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+        {% endif %}
+        <img id="screenshot-modal-img" src="" alt="" class="max-h-[min(100vh-6rem,100%)] max-w-full w-auto h-auto object-contain rounded-lg shadow-2xl" />
       </div>
       {% endif %}
 
@@ -159,12 +213,21 @@
 {% endblock %}
 
 {% block extra_scripts %}
-{% if product.screenshots|length > 1 %}
+{% if product.screenshots %}
 <script>
+  const SCREENSHOT_URLS = [
+    {% for ss in product.screenshots %}
+    {{ ss.file_path | tojson }}{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
   let current = 0;
-  const total = {{ product.screenshots|length }};
+  const total = SCREENSHOT_URLS.length;
   const track = document.getElementById('slider-track');
-  const dots  = document.querySelectorAll('.dot');
+  const dots = document.querySelectorAll('.dot');
+  const modal = document.getElementById('screenshot-modal');
+  const modalImg = document.getElementById('screenshot-modal-img');
+  const modalPrev = document.getElementById('modal-slide-prev');
+  const modalNext = document.getElementById('modal-slide-next');
 
   function updateDots() {
     dots.forEach((d, i) => {
@@ -177,13 +240,55 @@
 
   function slideTo(index) {
     current = (index + total) % total;
-    track.style.transform = `translateX(-${current * 100}%)`;
-    updateDots();
+    if (track) track.style.transform = `translateX(-${current * 100}%)`;
+    if (dots.length) updateDots();
   }
 
   function slideChange(dir) { slideTo(current + dir); }
 
-  updateDots();
+  function openScreenshotModal(index) {
+    current = (index + total) % total;
+    if (modalImg) modalImg.src = SCREENSHOT_URLS[current];
+    if (modalImg) modalImg.alt = 'Скриншот ' + (current + 1);
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeScreenshotModal() {
+    if (modal) {
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('overflow-hidden');
+    }
+    if (modalImg) modalImg.src = '';
+  }
+
+  function modalSlide(dir) {
+    if (total < 2) return;
+    slideTo(current + dir);
+    if (modalImg) modalImg.src = SCREENSHOT_URLS[current];
+    if (modalImg) modalImg.alt = 'Скриншот ' + (current + 1);
+  }
+
+  if (dots.length) updateDots();
+
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeScreenshotModal();
+    });
+  }
+  if (modalPrev) modalPrev.addEventListener('click', function (e) { e.stopPropagation(); modalSlide(-1); });
+  if (modalNext) modalNext.addEventListener('click', function (e) { e.stopPropagation(); modalSlide(1); });
+
+  document.addEventListener('keydown', function (e) {
+    if (!modal || modal.style.display === 'none' || modal.style.display === '') return;
+    if (e.key === 'Escape') closeScreenshotModal();
+    if (total > 1 && e.key === 'ArrowLeft') modalSlide(-1);
+    if (total > 1 && e.key === 'ArrowRight') modalSlide(1);
+  });
 </script>
 {% endif %}
 {% endblock %}

@@ -69,7 +69,7 @@
         <div>
           <label class="form-label">Полное описание</label>
           <textarea id="full_description" name="full_description" class="form-input resize-y min-h-[280px]" rows="10"
-                    placeholder="Текст с оформлением: заголовки, списки, ссылки…">{{ (product.full_description if product else '') | utf8_safe }}</textarea>
+                    placeholder="Текст с оформлением: заголовки, списки, ссылки…">{{ product.full_description if product else '' }}</textarea>
         </div>
 
         <div>

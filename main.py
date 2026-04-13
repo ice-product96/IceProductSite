@@ -1,4 +1,3 @@
-import imghdr
 import json
 import os
 import shutil
@@ -15,6 +14,11 @@ from PIL import Image
 from sqlalchemy.orm import Session
 from unidecode import unidecode
 import re
+
+try:
+    import imghdr as _imghdr
+except ModuleNotFoundError:  # removed in Python 3.13
+    _imghdr = None
 
 import bleach
 from markupsafe import Markup, escape
@@ -96,13 +100,16 @@ def sanitize_full_description(html: str) -> str:
     html = _utf8_safe_text(html.strip())
     if not html:
         return ""
-    return bleach.clean(
-        html,
-        tags=_FULL_DESC_TAGS,
-        attributes=_FULL_DESC_ATTRS,
-        protocols=["http", "https", "mailto"],
-        strip=True,
-    )
+    try:
+        return bleach.clean(
+            html,
+            tags=_FULL_DESC_TAGS,
+            attributes=_FULL_DESC_ATTRS,
+            protocols=frozenset(("http", "https", "mailto")),
+            strip=True,
+        )
+    except Exception:
+        return re.sub(r"<[^>]+>", "", html)
 
 
 def full_description_html(value: Optional[str]) -> Markup:
@@ -119,6 +126,18 @@ def full_description_html(value: Optional[str]) -> Markup:
 
 templates.env.filters["full_description_html"] = full_description_html
 templates.env.filters["utf8_safe"] = _utf8_safe_text
+
+
+def _jinja_finalize(value):
+    """Normalize all template text output so the HTML response always encodes as UTF-8."""
+    if isinstance(value, Markup):
+        return value
+    if isinstance(value, str):
+        return _utf8_safe_text(value)
+    return value
+
+
+templates.env.finalize = _jinja_finalize
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 MAX_ICON_SIZE = int(os.getenv("MAX_ICON_SIZE", 524288))       # 512 KB
@@ -152,13 +171,21 @@ ALLOWED_ICON_TYPES = {"jpeg", "png", "gif", "webp"}
 
 
 def validate_image(data: bytes, allowed: set) -> bool:
-    detected = imghdr.what(None, h=data)
-    if detected is None:
-        # imghdr doesn't detect webp or svg well — check magic bytes
+    detected = None
+    if _imghdr is not None:
+        detected = _imghdr.what(None, h=data)
+    if detected is None and len(data) >= 12:
         if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
             detected = "webp"
-        elif data[:5] == b"<?xml" or data[:4] == b"<svg":
+    if detected is None:
+        if data[:5] == b"<?xml" or (len(data) >= 4 and data[:4] == b"<svg"):
             detected = "svg"
+        elif len(data) >= 8 and data[:8] == b"\x89PNG\r\n\x1a\n":
+            detected = "png"
+        elif len(data) >= 3 and data[:3] == b"\xff\xd8\xff":
+            detected = "jpeg"
+        elif len(data) >= 6 and data[:6] in (b"GIF87a", b"GIF89a"):
+            detected = "gif"
     return detected in allowed
 
 

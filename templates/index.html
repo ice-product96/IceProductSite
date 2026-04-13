@@ -3,86 +3,140 @@
 
 {% block extra_head %}
 <style>
-  /* ── Page-flip card ──────────────────────────────────────────────── */
+  /* ── Page-flip card (крупнее, адаптив) ─────────────────────────────── */
   .flip-stack {
     position: relative;
-    width: 300px;
-    height: 340px;
-    perspective: 1200px;
+    width: clamp(300px, 88vw, 420px);
+    height: clamp(420px, 62vh, 560px);
+    max-height: min(560px, 85vh);
+    perspective: 1400px;
+    padding-bottom: 2.25rem;
   }
 
-  /* Shadow card behind (static) */
+  @media (min-width: 1024px) {
+    .flip-stack {
+      width: min(440px, 36vw);
+      height: min(540px, 70vh);
+    }
+  }
+
+  /* Тень сзади */
   .flip-shadow {
     position: absolute;
     inset: 0;
-    top: 14px; left: 14px;
-    background: linear-gradient(135deg, #b2ebf2, #c8e6c9);
-    border-radius: 20px;
+    top: 18px;
+    left: 18px;
+    background: linear-gradient(145deg, #80deea 0%, #a5d6a7 55%, #b2ebf2 100%);
+    border-radius: 28px;
     z-index: 0;
+    opacity: 0.95;
+    filter: blur(0.5px);
   }
 
-  /* The visible card */
   .flip-card {
     position: absolute;
     inset: 0;
-    background: white;
-    border-radius: 20px;
-    border: 1px solid #e0f7fa;
-    box-shadow: 0 20px 40px rgba(0,188,212,0.18);
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #ffffff 0%, #fafcfd 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(224, 247, 250, 0.95);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 188, 212, 0.06),
+      0 24px 48px -12px rgba(0, 188, 212, 0.22),
+      0 0 0 1px rgba(255, 255, 255, 0.8) inset;
     z-index: 1;
-    transform-origin: right top;   /* ← pivot: правый верхний угол */
+    transform-origin: right top;
     transition: none;
     overflow: hidden;
     will-change: transform, opacity;
   }
 
-  /* State: animating OUT — карточка уходит вверх-влево вокруг правого верхнего угла */
   .flip-card.leaving {
     animation: page-flip-out 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
-  /* State: entering — новая карточка появляется */
   .flip-card.entering {
     animation: page-flip-in 0.45s cubic-bezier(0.2, 0, 0.4, 1) forwards;
   }
 
   @keyframes page-flip-out {
     0%   { transform: rotate(0deg) translateY(0);   opacity: 1; }
-    40%  { transform: rotate(-8deg) translateY(-20px); opacity: 0.9; }
-    100% { transform: rotate(-25deg) translateY(-110%); opacity: 0; }
+    40%  { transform: rotate(-8deg) translateY(-24px); opacity: 0.92; }
+    100% { transform: rotate(-24deg) translateY(-115%); opacity: 0; }
   }
 
   @keyframes page-flip-in {
-    0%   { transform: rotate(-20deg) translateY(-80%); opacity: 0; }
+    0%   { transform: rotate(-18deg) translateY(-85%); opacity: 0; }
     100% { transform: rotate(0deg) translateY(0);      opacity: 1; }
   }
 
-  /* Progress bar */
   .app-progress {
-    height: 6px; border-radius: 999px;
+    height: 7px;
+    border-radius: 999px;
     background: linear-gradient(to right, #26c6da, #66bb6a);
+    box-shadow: 0 1px 3px rgba(38, 198, 218, 0.35);
   }
 
-  /* Feature badges */
+  .fc-preview {
+    flex: 1 1 auto;
+    min-height: 7.5rem;
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 0%, rgba(224, 247, 250, 0.9) 0%, transparent 55%),
+      linear-gradient(160deg, #e0f7fa 0%, #e8f5e9 100%);
+    border: 1px solid rgba(178, 235, 242, 0.6);
+  }
+
+  .fc-preview img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
   .app-badge {
-    background: #e0f7fa;
-    border-radius: 10px;
-    padding: 6px 4px;
+    background: linear-gradient(180deg, #f0fdff 0%, #e0f7fa 100%);
+    border: 1px solid rgba(178, 235, 242, 0.7);
+    border-radius: 12px;
+    padding: 8px 6px;
     text-align: center;
     flex: 1;
+    min-width: 0;
   }
 
-  /* Action button */
   .app-btn {
-    display: block; width: 100%; text-align: center;
+    display: block;
+    width: 100%;
+    text-align: center;
     background: linear-gradient(to right, #26c6da, #66bb6a);
-    color: white; font-size: 0.78rem; font-weight: 500;
-    padding: 10px 12px; border-radius: 10px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-radius: 14px;
     text-decoration: none;
-    box-shadow: 0 4px 12px rgba(38,198,218,0.35);
-    transition: opacity 0.15s;
+    box-shadow: 0 6px 20px rgba(38, 198, 218, 0.38);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
   }
-  .app-btn:hover { opacity: 0.88; }
+  .app-btn:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(38, 198, 218, 0.42);
+  }
+
+  .fc-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .fc-dot:focus-visible {
+    outline: 2px solid #26c6da;
+    outline-offset: 2px;
+  }
 </style>
 {% endblock %}
 
@@ -101,20 +155,20 @@
        style="background: linear-gradient(to right, #26c6da, #66bb6a);"></div>
 
   <div class="max-w-6xl mx-auto relative">
-    <div class="flex flex-col lg:flex-row items-center gap-12">
+    <div class="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-10 lg:gap-14 xl:gap-16">
 
       <!-- LEFT: text -->
-      <div class="flex-1 flex flex-col items-start gap-7">
-        <div class="text-5xl sm:text-6xl font-bold">
+      <div class="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 sm:gap-7 max-w-2xl lg:max-w-none mx-auto lg:mx-0">
+        <div class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
           <span class="grad-text">Айс.Продукт</span>
         </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold max-w-2xl leading-tight text-gray-900">
+        <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] xl:text-5xl font-semibold max-w-2xl leading-[1.15] text-gray-900">
           {{ settings.slogan }}
         </h1>
-        <p class="text-gray-600 text-lg max-w-xl leading-relaxed">
+        <p class="text-gray-600 text-base sm:text-lg max-w-xl leading-relaxed">
           {{ settings.short_description }}
         </p>
-        <a href="#products" class="btn-accent text-base mt-2">
+        <a href="#products" class="btn-accent text-base mt-1">
           Наши продукты
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -122,72 +176,63 @@
         </a>
       </div>
 
-      <!-- RIGHT: flip-card stack (только если есть приложения) -->
+      <!-- RIGHT: flip-card stack -->
       {% if apps %}
-      <div class="flex-shrink-0 hidden md:block">
+      <div class="flex-shrink-0 w-full flex justify-center lg:justify-end hidden sm:flex">
         <div class="flip-stack" id="flip-stack">
 
-          <!-- Shadow -->
-          <div class="flip-shadow"></div>
+          <div class="flip-shadow" aria-hidden="true"></div>
 
-          <!-- Card template — заполняется JS -->
           <div class="flip-card" id="flip-card">
 
-            <!-- Card header -->
-            <div class="px-5 pt-5 pb-3 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <div id="fc-icon" class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 icon-grad">
-                  <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="px-6 pt-6 pb-3 flex items-start justify-between gap-3 flex-shrink-0">
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div id="fc-icon" class="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 icon-grad shadow-lg"
+                     style="box-shadow: 0 8px 22px rgba(38,198,218,0.42);">
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
                   </svg>
                 </div>
-                <span id="fc-name" class="font-bold text-sm text-gray-800 truncate max-w-[160px]"></span>
+                <span id="fc-name" class="font-bold text-base sm:text-lg text-gray-900 truncate leading-snug"></span>
               </div>
-              <span class="text-xs font-medium px-2.5 py-1 rounded-full text-white"
-                    style="background: linear-gradient(to right, #26c6da, #66bb6a);">Доступно</span>
+              <span class="text-xs font-semibold px-3 py-1.5 rounded-full text-white flex-shrink-0 shadow-sm"
+                    style="background: linear-gradient(135deg, #26c6da, #4caf50);">Доступно</span>
             </div>
 
-            <!-- Progress bar -->
-            <div class="px-5 pb-4">
-              <div class="flex justify-between text-xs text-gray-400 mb-1.5">
-                <span>Статус</span><span>Активно</span>
+            <div class="px-6 pb-4 flex-shrink-0">
+              <div class="flex justify-between text-xs font-medium text-gray-500 mb-2">
+                <span>Статус</span><span class="text-[#00838f]">Активно</span>
               </div>
-              <div class="w-full bg-gray-100 rounded-full h-1.5">
-                <div class="app-progress" style="width:100%"></div>
+              <div class="w-full bg-gray-100/90 rounded-full h-2 overflow-hidden">
+                <div class="app-progress h-full" style="width:100%"></div>
               </div>
             </div>
 
-            <!-- Screenshot / icon area -->
-            <div id="fc-img-wrap" class="mx-5 rounded-xl overflow-hidden mb-4 flex items-center justify-center"
-                 style="height:110px; background: linear-gradient(135deg,#e0f7fa,#e8f5e9);">
-              <img id="fc-img" src="" alt="" class="h-full w-full object-cover hidden" />
-              <div id="fc-placeholder" class="icon-grad w-16 h-16 rounded-2xl flex items-center justify-center"
-                   style="box-shadow:0 6px 18px rgba(38,198,218,0.4);">
-                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div id="fc-img-wrap" class="fc-preview mx-6 rounded-2xl overflow-hidden mb-4 flex items-center justify-center p-4">
+              <img id="fc-img" src="" alt="" class="hidden rounded-lg" />
+              <div id="fc-placeholder" class="icon-grad w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0"
+                   style="box-shadow:0 10px 28px rgba(38,198,218,0.45);">
+                <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
                 </svg>
               </div>
             </div>
 
-            <!-- Short description -->
-            <div class="px-5 pb-3">
-              <p id="fc-desc" class="text-xs text-gray-500 leading-relaxed line-clamp-2"></p>
+            <div class="px-6 pb-3 flex-shrink-0">
+              <p id="fc-desc" class="text-sm text-gray-600 leading-relaxed line-clamp-3"></p>
             </div>
 
-            <!-- Feature badges -->
-            <div id="fc-features" class="px-5 pb-4 flex gap-2"></div>
+            <div id="fc-features" class="px-6 pb-4 flex gap-2 flex-shrink-0"></div>
 
-            <!-- CTA button -->
-            <div class="px-5 pb-5">
+            <div class="px-6 pb-6 mt-auto flex-shrink-0">
               <a id="fc-btn" href="#" class="app-btn">Перейти к приложению →</a>
             </div>
 
-          </div><!-- /.flip-card -->
+          </div>
 
-          <!-- Dots indicator -->
-          <div id="fc-dots" class="absolute -bottom-7 left-1/2 -translate-x-1/2 flex gap-2"></div>
+          <div id="fc-dots" class="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2.5 items-center"></div>
 
-        </div><!-- /.flip-stack -->
+        </div>
       </div>
       {% endif %}
 
@@ -299,9 +344,11 @@
   // Build dots
   APPS.forEach((_, i) => {
     const d = document.createElement('button');
-    d.className = 'w-2 h-2 rounded-full transition-all';
-    d.style.background = i === 0 ? 'linear-gradient(to right,#26c6da,#66bb6a)' : '#e0f7fa';
-    d.style.transform  = i === 0 ? 'scale(1.3)' : 'scale(1)';
+    d.type = 'button';
+    d.className = 'fc-dot';
+    d.style.background = i === 0 ? 'linear-gradient(135deg,#26c6da,#66bb6a)' : '#b2ebf2';
+    d.style.transform = i === 0 ? 'scale(1.35)' : 'scale(1)';
+    d.style.boxShadow = i === 0 ? '0 2px 8px rgba(38,198,218,0.45)' : 'none';
     d.setAttribute('aria-label', 'Приложение ' + (i + 1));
     d.addEventListener('click', () => { if (!animating) flipTo(i); });
     dotsWrap.appendChild(d);
@@ -309,8 +356,10 @@
 
   function updateDots(idx) {
     [...dotsWrap.children].forEach((d, i) => {
-      d.style.background = i === idx ? 'linear-gradient(to right,#26c6da,#66bb6a)' : '#e0f7fa';
-      d.style.transform  = i === idx ? 'scale(1.3)' : 'scale(1)';
+      const on = i === idx;
+      d.style.background = on ? 'linear-gradient(135deg,#26c6da,#66bb6a)' : '#b2ebf2';
+      d.style.transform = on ? 'scale(1.35)' : 'scale(1)';
+      d.style.boxShadow = on ? '0 2px 8px rgba(38,198,218,0.45)' : 'none';
     });
   }
 
@@ -326,6 +375,7 @@
       fcPh.classList.add('hidden');
     } else {
       fcImg.classList.add('hidden');
+      fcImg.removeAttribute('src');
       fcPh.classList.remove('hidden');
     }
 
@@ -339,7 +389,13 @@
     (app.features || []).slice(0, 3).forEach(f => {
       const b = document.createElement('div');
       b.className = 'app-badge';
-      b.innerHTML = `<div style="font-size:0.65rem;color:#00838f;line-height:1.3;">${f}</div>`;
+      const inner = document.createElement('div');
+      inner.style.fontSize = '0.7rem';
+      inner.style.fontWeight = '500';
+      inner.style.color = '#006064';
+      inner.style.lineHeight = '1.35';
+      inner.textContent = f;
+      b.appendChild(inner);
       fcFeats.appendChild(b);
     });
   }

@@ -39,6 +39,19 @@
       <p class="text-xs text-[#5F5E5A] mt-1">До 255 символов.</p>
     </div>
 
+    <hr class="border-[#EAF3DE]" />
+
+    <div>
+      <label class="form-label">Код Яндекс.Метрики</label>
+      <textarea
+        name="yandex_metrika_code"
+        rows="8"
+        class="form-input font-mono text-xs resize-y"
+        placeholder="Вставьте код счетчика Яндекс.Метрики целиком (script + noscript)..."
+      >{{ settings.yandex_metrika_code or '' }}</textarea>
+      <p class="text-xs text-[#5F5E5A] mt-1">Код будет вставлен на все публичные страницы сайта.</p>
+    </div>
+
     <div class="flex justify-end pt-2">
       <button type="submit" class="btn-accent">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>

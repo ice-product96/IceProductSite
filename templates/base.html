@@ -115,6 +115,10 @@
     </div>
   </footer>
 
+  {% if settings.yandex_metrika_code %}
+    {{ settings.yandex_metrika_code | safe }}
+  {% endif %}
+
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

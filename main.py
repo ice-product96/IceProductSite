@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session, selectinload
 from unidecode import unidecode
 import re
@@ -37,6 +38,22 @@ from models import App, AppScreenshot, SiteSettings
 # ── App setup ─────────────────────────────────────────────────────────────────
 
 Base.metadata.create_all(bind=engine)
+
+
+def _ensure_site_settings_schema() -> None:
+    """Lightweight runtime migration for new settings fields."""
+    inspector = inspect(engine)
+    try:
+        cols = {col["name"] for col in inspector.get_columns("site_settings")}
+    except Exception:
+        return
+    if "yandex_metrika_code" in cols:
+        return
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE site_settings ADD COLUMN yandex_metrika_code TEXT DEFAULT ''"))
+
+
+_ensure_site_settings_schema()
 
 app = FastAPI(title="Айс.Продукт")
 
@@ -228,6 +245,7 @@ def get_settings(db: Session) -> SiteSettings:
             short_description="",
             meta_title="Айс.Продукт",
             meta_description="",
+            yandex_metrika_code="",
         )
         db.add(s)
         db.commit()
@@ -424,6 +442,7 @@ async def admin_settings_save(
     short_description: str = Form(""),
     meta_title: str = Form(""),
     meta_description: str = Form(""),
+    yandex_metrika_code: str = Form(""),
 ):
     require_admin(request)
     if not check_csrf(request, csrf_token):
@@ -433,6 +452,7 @@ async def admin_settings_save(
     settings.short_description = short_description.strip()
     settings.meta_title = meta_title.strip()
     settings.meta_description = meta_description.strip()
+    settings.yandex_metrika_code = yandex_metrika_code.strip()
     db.commit()
     csrf = get_csrf(request)
     return templates.TemplateResponse(

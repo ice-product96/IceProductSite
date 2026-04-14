@@ -14,6 +14,7 @@ class SiteSettings(Base):
     short_description: Mapped[str] = mapped_column(Text, default="")
     meta_title: Mapped[str] = mapped_column(String(255), default="")
     meta_description: Mapped[str] = mapped_column(String(255), default="")
+    yandex_metrika_code: Mapped[str] = mapped_column(Text, default="")
 
 
 class App(Base):

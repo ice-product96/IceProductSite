@@ -25,6 +25,33 @@
     }
   }
 
+  @media (max-width: 767.98px) {
+    .flip-stack {
+      height: auto;
+      max-height: none;
+      padding-bottom: 0.85rem;
+      perspective: none;
+    }
+    .flip-shadow {
+      display: none;
+    }
+    .flip-card {
+      position: relative;
+      inset: auto;
+      animation: none !important;
+      transform: none !important;
+      will-change: auto;
+    }
+    #fc-dots {
+      position: static;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      justify-content: center;
+      margin-top: 0.6rem;
+    }
+  }
+
   /* Тень сзади */
   .flip-shadow {
     position: absolute;
@@ -337,10 +364,16 @@
   let current  = 0;
   let animating = false;
   const INTERVAL = 4000; // ms between flips
-  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+  const isTouchDevice = (
+    window.matchMedia('(hover: none)').matches ||
+    window.matchMedia('(pointer: coarse)').matches ||
+    ('ontouchstart' in window) ||
+    (navigator.maxTouchPoints || 0) > 0 ||
+    window.innerWidth < 768
+  );
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const useFlipAnimation = !isCoarsePointer && !prefersReducedMotion;
-  const useAutoFlip = !isCoarsePointer && !prefersReducedMotion;
+  const useFlipAnimation = !isTouchDevice && !prefersReducedMotion;
+  const useAutoFlip = !isTouchDevice && !prefersReducedMotion;
 
   const card      = document.getElementById('flip-card');
   const fcName    = document.getElementById('fc-name');

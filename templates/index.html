@@ -27,10 +27,14 @@
 
   @media (max-width: 767.98px) {
     .flip-stack {
+      width: 100%;
       height: auto;
       max-height: none;
-      padding-bottom: 0.85rem;
+      padding-bottom: 0;
       perspective: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
     }
     .flip-shadow {
       display: none;
@@ -41,6 +45,16 @@
       animation: none !important;
       transform: none !important;
       will-change: auto;
+      min-height: 0;
+    }
+    .fc-preview {
+      min-height: 9rem;
+    }
+    #fc-features {
+      flex-wrap: wrap;
+    }
+    .app-badge {
+      flex: 1 1 calc(50% - 0.25rem);
     }
     #fc-dots {
       position: static;
@@ -48,7 +62,7 @@
       bottom: auto;
       transform: none;
       justify-content: center;
-      margin-top: 0.6rem;
+      margin-top: 0;
     }
   }
 

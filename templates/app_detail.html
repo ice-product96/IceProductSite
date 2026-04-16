@@ -155,6 +155,24 @@
       </div>
       {% endif %}
 
+      <!-- CTA (mobile: right after screenshots) -->
+      {% if product.external_url %}
+      <div class="lg:hidden rounded-2xl p-5 flex flex-col gap-3 text-white"
+           style="background: linear-gradient(135deg, #26c6da 0%, #4dd0e1 40%, #66bb6a 100%);
+                  box-shadow: 0 8px 24px rgba(38,198,218,0.3);">
+        <h2 class="text-base font-semibold">Попробуйте бесплатно</h2>
+        <p class="text-sm text-white/85">Откройте приложение и начните работу прямо сейчас.</p>
+        <a href="{{ product.external_url }}" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center justify-center gap-2 bg-white font-medium text-sm px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity"
+           style="color: #00bcd4; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          Перейти к приложению
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </a>
+      </div>
+      {% endif %}
+
       <!-- Full description -->
       {% set raw_description = product.full_description or '' %}
       {% if raw_description %}
@@ -170,7 +188,7 @@
     <div class="lg:col-span-2 flex flex-col gap-6">
 
       <!-- CTA — gradient как pricing CTA на ice-shield.ru -->
-      <div class="rounded-2xl p-6 flex flex-col gap-4 text-white"
+      <div class="hidden lg:flex rounded-2xl p-6 flex-col gap-4 text-white"
            style="background: linear-gradient(135deg, #26c6da 0%, #4dd0e1 40%, #66bb6a 100%);
                   box-shadow: 0 10px 30px rgba(38,198,218,0.35);">
         <h2 class="text-lg font-semibold">Попробуйте бесплатно</h2>

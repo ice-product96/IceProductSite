@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Контакты — {{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
+{% block meta_description %}Контакты и техническая поддержка: Telegram, email и телефон.{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden py-16 sm:py-20 px-4 sm:px-6 lg:px-8"
+         style="background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);">
+  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none opacity-35"
+       style="background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);"></div>
+  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none opacity-25"
+       style="background: radial-gradient(circle, #81c784 0%, transparent 70%);"></div>
+
+  <div class="max-w-6xl mx-auto relative">
+    <div class="text-center mb-10 sm:mb-12">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-4">
+        <span class="grad-text">Контакты и поддержка</span>
+      </h1>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        Мы готовы помочь вам с любыми вопросами по продуктам. Выберите удобный способ связи.
+      </p>
+    </div>
+
+    <div class="bg-white border border-ice-200 rounded-2xl p-5 sm:p-6 mb-8 shadow-sm">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <h2 class="text-lg font-semibold text-gray-800">Статус поддержки</h2>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+          <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+          Онлайн
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <article class="bg-white border border-ice-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div class="px-5 py-4 text-white" style="background: linear-gradient(135deg, #2ea8ff, #1f75d8);">
+          <h3 class="text-lg font-semibold">Telegram</h3>
+          <p class="text-white/85 text-sm">Быстрая поддержка в мессенджере</p>
+        </div>
+        <div class="p-5 flex flex-col gap-4 flex-1">
+          <p class="text-sm text-gray-600"><span class="font-medium text-gray-800">Время работы:</span> Пн–Вс, 8:00–20:00 (UTC+3)</p>
+          <ul class="text-sm text-gray-600 space-y-2">
+            <li>Быстрый ответ (до 5 минут)</li>
+            <li>Персональная консультация</li>
+            <li>Можно отправлять скриншоты и файлы</li>
+          </ul>
+          <a href="https://t.me/IceShield_support_bot" target="_blank" rel="noopener noreferrer"
+             class="mt-auto inline-flex items-center justify-center gap-2 text-white rounded-xl px-4 py-2.5 font-medium"
+             style="background: linear-gradient(135deg, #2ea8ff, #1f75d8);">
+            Открыть @IceShield_support_bot
+          </a>
+        </div>
+      </article>
+
+      <article class="bg-white border border-ice-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div class="px-5 py-4 text-white" style="background: linear-gradient(135deg, #ff6b6b, #e74c3c);">
+          <h3 class="text-lg font-semibold">Email</h3>
+          <p class="text-white/85 text-sm">Подробная поддержка по почте</p>
+        </div>
+        <div class="p-5 flex flex-col gap-4 flex-1">
+          <p class="text-sm text-gray-600"><span class="font-medium text-gray-800">Время работы:</span> 24/7</p>
+          <p class="text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-mono break-all">
+            Ice.product96@yandex.ru
+          </p>
+          <ul class="text-sm text-gray-600 space-y-2">
+            <li>Подходит для детальных обращений</li>
+            <li>Можно прикладывать логи и файлы</li>
+            <li>Среднее время ответа: до 4 часов</li>
+          </ul>
+          <a href="mailto:Ice.product96@yandex.ru?subject=Техническая поддержка"
+             class="mt-auto inline-flex items-center justify-center gap-2 text-white rounded-xl px-4 py-2.5 font-medium"
+             style="background: linear-gradient(135deg, #ff6b6b, #e74c3c);">
+            Написать на email
+          </a>
+        </div>
+      </article>
+
+      <article class="bg-white border border-ice-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div class="px-5 py-4 text-white" style="background: linear-gradient(135deg, #38c172, #2f9e54);">
+          <h3 class="text-lg font-semibold">Телефон</h3>
+          <p class="text-white/85 text-sm">Прямая связь со специалистом</p>
+        </div>
+        <div class="p-5 flex flex-col gap-4 flex-1">
+          <p class="text-sm text-gray-600"><span class="font-medium text-gray-800">Время работы:</span> Пн–Пт, 9:00–18:00 (UTC+3)</p>
+          <p class="text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-mono">
+            +7 (982) 755-40-22
+          </p>
+          <ul class="text-sm text-gray-600 space-y-2">
+            <li>Мгновенное решение вопроса</li>
+            <li>Пошаговая помощь в реальном времени</li>
+            <li>Консультация по настройке</li>
+          </ul>
+          <a href="tel:+79827554022"
+             class="mt-auto inline-flex items-center justify-center gap-2 text-white rounded-xl px-4 py-2.5 font-medium"
+             style="background: linear-gradient(135deg, #38c172, #2f9e54);">
+            Позвонить
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}

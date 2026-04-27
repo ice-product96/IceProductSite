@@ -328,6 +328,8 @@ async def home(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/contacts", response_class=HTMLResponse)
+@app.get("/contacts/", response_class=HTMLResponse)
+@app.get("/support", response_class=HTMLResponse)
 async def contacts_page(request: Request, db: Session = Depends(get_db)):
     settings = get_settings(db)
     return templates.TemplateResponse(

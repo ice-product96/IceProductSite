@@ -341,6 +341,20 @@ async def contacts_page(request: Request, db: Session = Depends(get_db)):
     )
 
 
+@app.get("/privacy", response_class=HTMLResponse)
+@app.get("/privacy/", response_class=HTMLResponse)
+@app.get("/politika", response_class=HTMLResponse)
+async def privacy_page(request: Request, db: Session = Depends(get_db)):
+    settings = get_settings(db)
+    return templates.TemplateResponse(
+        "privacy.html",
+        {
+            "request": request,
+            "settings": settings,
+        },
+    )
+
+
 @app.get("/app/{slug}", response_class=HTMLResponse)
 async def app_detail(slug: str, request: Request, db: Session = Depends(get_db)):
     # Сначала настройки: при первом запуске get_settings делает commit(), из‑за чего

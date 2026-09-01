@@ -41,6 +41,7 @@ from pipeline import (
     DEFAULT_SYSTEM_PROMPT,
     DEFAULT_TEXT_MODEL,
     get_pipeline_settings,
+    normalize_http_proxy,
     run_once as pipeline_run_once,
     start_pipeline_loop,
     unique_article_slug,
@@ -58,13 +59,25 @@ def _ensure_site_settings_schema() -> None:
         cols = {col["name"] for col in inspector.get_columns("site_settings")}
     except Exception:
         return
-    if "yandex_metrika_code" in cols:
+    if "yandex_metrika_code" not in cols:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE site_settings ADD COLUMN yandex_metrika_code TEXT DEFAULT ''"))
+
+
+def _ensure_pipeline_settings_schema() -> None:
+    inspector = inspect(engine)
+    try:
+        cols = {col["name"] for col in inspector.get_columns("pipeline_settings")}
+    except Exception:
+        return
+    if "http_proxy" in cols:
         return
     with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE site_settings ADD COLUMN yandex_metrika_code TEXT DEFAULT ''"))
+        conn.execute(text("ALTER TABLE pipeline_settings ADD COLUMN http_proxy VARCHAR(500) DEFAULT ''"))
 
 
 _ensure_site_settings_schema()
+_ensure_pipeline_settings_schema()
 
 app = FastAPI(title="Айс.Продукт")
 start_pipeline_loop(app)
@@ -1235,6 +1248,7 @@ async def admin_pipeline_page(request: Request, db: Session = Depends(get_db)):
             "csrf": get_csrf(request),
             "key_mask": _mask_key(settings.openai_api_key),
             "has_env_key": bool(os.getenv("OPENAI_API_KEY")),
+            "has_env_proxy": bool(os.getenv("OPENAI_HTTP_PROXY") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")),
             "queued": queued,
             "saved": saved,
             "default_prompt": DEFAULT_SYSTEM_PROMPT,
@@ -1248,6 +1262,7 @@ async def admin_pipeline_save(
     db: Session = Depends(get_db),
     csrf_token: str = Form(...),
     openai_api_key: str = Form(""),
+    http_proxy: str = Form(""),
     text_model: str = Form(DEFAULT_TEXT_MODEL),
     image_model: str = Form(DEFAULT_IMAGE_MODEL),
     image_size: str = Form("1536x1024"),
@@ -1266,6 +1281,7 @@ async def admin_pipeline_save(
     new_key = openai_api_key.strip()
     if new_key and not new_key.startswith("•"):
         settings.openai_api_key = new_key
+    settings.http_proxy = normalize_http_proxy(http_proxy)
     settings.text_model = (text_model.strip() or DEFAULT_TEXT_MODEL)[:80]
     settings.image_model = (image_model.strip() or DEFAULT_IMAGE_MODEL)[:80]
     settings.image_size = (image_size.strip() or "1536x1024")[:32]

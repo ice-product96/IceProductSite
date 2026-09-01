@@ -55,6 +55,16 @@
       <p class="text-xs text-gray-400 mt-1">Оставьте пустым, чтобы не менять сохранённый ключ.</p>
     </div>
 
+    <div>
+      <label class="form-label">HTTP-прокси для OpenAI</label>
+      <input class="form-input font-mono text-xs" type="text" name="http_proxy"
+             value="{{ p.http_proxy or '' }}" placeholder="http://127.0.0.1:7890" autocomplete="off" />
+      <p class="text-xs text-gray-400 mt-1">
+        Запросы к API пойдут через прокси. Можно с логином: <code>http://user:pass@host:port</code>.
+        Пусто — прямое соединение{% if has_env_proxy %} (есть <code>OPENAI_HTTP_PROXY</code> / <code>HTTPS_PROXY</code> в окружении){% endif %}.
+      </p>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="form-label">Модель текста</label>

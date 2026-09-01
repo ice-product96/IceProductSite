@@ -83,6 +83,7 @@ class PipelineSettings(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     openai_api_key: Mapped[str] = mapped_column(Text, default="")
+    http_proxy: Mapped[str] = mapped_column(String(500), default="")
     text_model: Mapped[str] = mapped_column(String(80), default="gpt-5.6-luna")
     image_model: Mapped[str] = mapped_column(String(80), default="gpt-image-2")
     image_size: Mapped[str] = mapped_column(String(32), default="1536x1024")

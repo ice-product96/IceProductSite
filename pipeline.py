@@ -78,14 +78,29 @@ def _json_from_text(raw: str) -> dict:
     return json.loads(raw)
 
 
-def _openai_client(api_key: str):
+def _openai_client(api_key: str, http_proxy: str = ""):
     from openai import OpenAI
+    import httpx
 
-    return OpenAI(api_key=api_key, timeout=180.0)
+    kwargs = {"api_key": api_key, "timeout": 180.0}
+    proxy = (http_proxy or "").strip()
+    if proxy:
+        try:
+            http_client = httpx.Client(proxy=proxy, timeout=180.0)
+        except TypeError:
+            http_client = httpx.Client(proxies=proxy, timeout=180.0)
+        kwargs["http_client"] = http_client
+    return OpenAI(**kwargs)
 
 
-def generate_article_payload(api_key: str, text_model: str, system_prompt: str, user_prompt: str) -> dict:
-    client = _openai_client(api_key)
+def generate_article_payload(
+    api_key: str,
+    text_model: str,
+    system_prompt: str,
+    user_prompt: str,
+    http_proxy: str = "",
+) -> dict:
+    client = _openai_client(api_key, http_proxy)
     instructions = (system_prompt or DEFAULT_SYSTEM_PROMPT).strip() + "\n\n" + ARTICLE_JSON_INSTRUCTION
     last_error = None
 
@@ -125,9 +140,15 @@ def generate_article_payload(api_key: str, text_model: str, system_prompt: str, 
         raise RuntimeError(f"Не удалось сгенерировать текст: {exc}") from (last_error or exc)
 
 
-def generate_cover_image(api_key: str, image_model: str, prompt: str, size: str = "1536x1024") -> str:
+def generate_cover_image(
+    api_key: str,
+    image_model: str,
+    prompt: str,
+    size: str = "1536x1024",
+    http_proxy: str = "",
+) -> str:
     COVERS_DIR.mkdir(parents=True, exist_ok=True)
-    client = _openai_client(api_key)
+    client = _openai_client(api_key, http_proxy)
     kwargs = {"model": image_model, "prompt": prompt, "size": size or "1536x1024", "n": 1}
     try:
         result = client.images.generate(**kwargs)
@@ -146,8 +167,16 @@ def generate_cover_image(api_key: str, image_model: str, prompt: str, size: str 
     elif url:
         import urllib.request
 
-        with urllib.request.urlopen(url, timeout=120) as resp:
-            raw = resp.read()
+        req = urllib.request.Request(url)
+        if http_proxy:
+            opener = urllib.request.build_opener(
+                urllib.request.ProxyHandler({"http": http_proxy, "https": http_proxy})
+            )
+            with opener.open(req, timeout=120) as resp:
+                raw = resp.read()
+        else:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                raw = resp.read()
     if not raw:
         raise RuntimeError("Модель изображения не вернула файл")
 
@@ -211,6 +240,25 @@ def resolve_api_key(settings) -> str:
     return (settings.openai_api_key or os.getenv("OPENAI_API_KEY") or "").strip()
 
 
+def normalize_http_proxy(value: str) -> str:
+    proxy = (value or "").strip()
+    if not proxy:
+        return ""
+    if "://" not in proxy:
+        proxy = "http://" + proxy
+    return proxy[:500]
+
+
+def resolve_http_proxy(settings) -> str:
+    return normalize_http_proxy(
+        getattr(settings, "http_proxy", "")
+        or os.getenv("OPENAI_HTTP_PROXY")
+        or os.getenv("HTTPS_PROXY")
+        or os.getenv("HTTP_PROXY")
+        or ""
+    )
+
+
 def _pick_kind(settings, db) -> str:
     from models import Article
 
@@ -241,6 +289,7 @@ def run_once(force_kind: Optional[str] = None) -> dict:
     try:
         settings = get_pipeline_settings(db)
         api_key = resolve_api_key(settings)
+        http_proxy = resolve_http_proxy(settings)
         if not api_key:
             raise RuntimeError("Не задан OpenAI API ключ (админка → Конвеер или OPENAI_API_KEY).")
 
@@ -264,6 +313,7 @@ def run_once(force_kind: Optional[str] = None) -> dict:
             settings.text_model or DEFAULT_TEXT_MODEL,
             settings.system_prompt or DEFAULT_SYSTEM_PROMPT,
             user_prompt,
+            http_proxy,
         )
         kind = (payload.get("kind") or kind or "blog").strip().lower()
         if kind not in ("blog", "news"):
@@ -284,6 +334,7 @@ def run_once(force_kind: Optional[str] = None) -> dict:
                 settings.image_model or DEFAULT_IMAGE_MODEL,
                 image_prompt,
                 settings.image_size or "1536x1024",
+                http_proxy,
             )
 
         now = datetime.utcnow()

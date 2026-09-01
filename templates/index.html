@@ -1,558 +1,101 @@
 {% extends "base.html" %}
 {% block title %}{{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
 
-{% block extra_head %}
-<style>
-  /* ── Page-flip card (крупнее, адаптив) ─────────────────────────────── */
-  .flip-stack {
-    position: relative;
-    width: min(100%, 420px);
-    height: clamp(400px, 58vh, 540px);
-    max-height: min(540px, 82vh);
-    perspective: 1400px;
-    padding-bottom: 2.25rem;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box;
-    touch-action: pan-y;
-  }
-
-  @media (min-width: 1024px) {
-    .flip-stack {
-      height: min(520px, 68vh);
-      margin-left: 0;
-      margin-right: 0;
-    }
-  }
-
-  @media (max-width: 767.98px) {
-    .flip-stack {
-      width: 100%;
-      height: auto;
-      max-height: none;
-      padding-bottom: 0;
-      perspective: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-    .flip-shadow {
-      display: none;
-    }
-    .flip-card {
-      position: relative;
-      inset: auto;
-      animation: none !important;
-      transform: none !important;
-      will-change: auto;
-      min-height: 0;
-    }
-    .fc-preview {
-      min-height: 9rem;
-    }
-    #fc-features {
-      flex-wrap: wrap;
-    }
-    .app-badge {
-      flex: 1 1 calc(50% - 0.25rem);
-    }
-    #fc-dots {
-      position: static;
-      left: auto;
-      bottom: auto;
-      transform: none;
-      justify-content: center;
-      margin-top: 0;
-    }
-  }
-
-  /* Тень сзади */
-  .flip-shadow {
-    position: absolute;
-    inset: 0;
-    top: 18px;
-    left: 18px;
-    background: linear-gradient(145deg, #80deea 0%, #a5d6a7 55%, #b2ebf2 100%);
-    border-radius: 28px;
-    z-index: 0;
-    opacity: 0.95;
-    filter: blur(0.5px);
-  }
-
-  .flip-card {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(180deg, #ffffff 0%, #fafcfd 100%);
-    border-radius: 24px;
-    border: 1px solid rgba(224, 247, 250, 0.95);
-    box-shadow:
-      0 4px 6px -1px rgba(0, 188, 212, 0.06),
-      0 24px 48px -12px rgba(0, 188, 212, 0.22),
-      0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-    z-index: 1;
-    transform-origin: right top;
-    transition: none;
-    overflow: hidden;
-    will-change: transform, opacity;
-    touch-action: pan-y;
-  }
-
-  .flip-card.leaving {
-    animation: page-flip-out 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  .flip-card.entering {
-    animation: page-flip-in 0.45s cubic-bezier(0.2, 0, 0.4, 1) forwards;
-  }
-
-  @keyframes page-flip-out {
-    0%   { transform: rotate(0deg) translateY(0);   opacity: 1; }
-    40%  { transform: rotate(-8deg) translateY(-24px); opacity: 0.92; }
-    100% { transform: rotate(-24deg) translateY(-115%); opacity: 0; }
-  }
-
-  @keyframes page-flip-in {
-    0%   { transform: rotate(-18deg) translateY(-85%); opacity: 0; }
-    100% { transform: rotate(0deg) translateY(0);      opacity: 1; }
-  }
-
-  .app-progress {
-    height: 7px;
-    border-radius: 999px;
-    background: linear-gradient(to right, #26c6da, #66bb6a);
-    box-shadow: 0 1px 3px rgba(38, 198, 218, 0.35);
-  }
-
-  .fc-preview {
-    flex: 1 1 auto;
-    min-height: 7.5rem;
-    background:
-      radial-gradient(ellipse 120% 80% at 50% 0%, rgba(224, 247, 250, 0.9) 0%, transparent 55%),
-      linear-gradient(160deg, #e0f7fa 0%, #e8f5e9 100%);
-    border: 1px solid rgba(178, 235, 242, 0.6);
-  }
-
-  .fc-preview img {
-    max-height: 100%;
-    max-width: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-  }
-
-  .app-badge {
-    background: linear-gradient(180deg, #f0fdff 0%, #e0f7fa 100%);
-    border: 1px solid rgba(178, 235, 242, 0.7);
-    border-radius: 12px;
-    padding: 8px 6px;
-    text-align: center;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .app-btn {
-    display: block;
-    width: 100%;
-    text-align: center;
-    background: linear-gradient(to right, #26c6da, #66bb6a);
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 12px 16px;
-    border-radius: 14px;
-    text-decoration: none;
-    box-shadow: 0 6px 20px rgba(38, 198, 218, 0.38);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
-  }
-  .app-btn:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
-    box-shadow: 0 10px 28px rgba(38, 198, 218, 0.42);
-  }
-
-  .fc-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .fc-dot:focus-visible {
-    outline: 2px solid #26c6da;
-    outline-offset: 2px;
-  }
-</style>
-{% endblock %}
-
 {% block content %}
-
-<!-- HERO -->
-<section class="relative overflow-hidden py-24 px-4 sm:px-6 lg:px-8"
-         style="background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);">
-
-  <!-- Decorative blobs -->
-  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none opacity-40"
-       style="background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);"></div>
-  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none opacity-30"
-       style="background: radial-gradient(circle, #81c784 0%, transparent 70%);"></div>
-  <div class="absolute bottom-0 left-0 right-0 h-1"
-       style="background: linear-gradient(to right, #26c6da, #66bb6a);"></div>
-
-  <div class="max-w-6xl mx-auto relative overflow-x-hidden">
-    <div class="flex flex-col lg:flex-row items-center lg:items-center lg:justify-between gap-10 lg:gap-10 xl:gap-14 min-w-0">
-
-      <!-- LEFT: text -->
-      <div class="flex-1 min-w-0 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 sm:gap-7 max-w-2xl lg:max-w-[min(100%,42rem)] mx-auto lg:mx-0">
-        <div class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
-          <span class="grad-text">Айс.Продукт</span>
-        </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] xl:text-5xl font-semibold max-w-2xl leading-[1.15] text-gray-900">
-          {{ settings.slogan }}
-        </h1>
-        <p class="text-gray-600 text-base sm:text-lg max-w-xl leading-relaxed">
-          {{ settings.short_description }}
-        </p>
-        <a href="#products" class="btn-accent text-base mt-1">
-          Наши решения
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </a>
-      </div>
-
-      <!-- RIGHT: mobile static card + desktop flip-card -->
-      {% if apps %}
-      {% set featured_app = apps[0] %}
-
-      <!-- Mobile: static solution card (no animation, stable scroll) -->
-      <div class="sm:hidden w-full max-w-sm mx-auto">
-        <div class="bg-white/95 rounded-2xl border border-ice-200 shadow-lg overflow-hidden">
-          <div class="px-5 pt-5 pb-3 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              {% if featured_app.icon_path %}
-              <img src="{{ featured_app.icon_path }}" alt="{{ featured_app.name }}" class="w-11 h-11 rounded-xl object-contain bg-[#e0f7fa] p-1.5" />
-              {% else %}
-              <div class="w-11 h-11 rounded-xl flex items-center justify-center icon-grad">
-                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
-                </svg>
-              </div>
-              {% endif %}
-              <p class="font-semibold text-gray-900 truncate">{{ featured_app.name }}</p>
-            </div>
-            <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full text-white bg-gradient-to-r from-cyan-500 to-green-500">Доступно</span>
-          </div>
-
-          <div class="px-5 pb-4">
-            <p class="text-sm text-gray-600 leading-relaxed">
-              {{ featured_app.short_description }}
-            </p>
-          </div>
-
-          <div class="px-5 pb-5">
-            <a href="{{ featured_app.external_url or ('/app/' ~ featured_app.slug) }}" class="app-btn">
-              {% if featured_app.external_url %}Перейти к приложению →{% else %}Подробнее →{% endif %}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Desktop/tablet: animated flip card -->
-      <div class="hidden sm:flex shrink-0 justify-center lg:justify-end w-full max-w-[420px] lg:w-[420px]">
-        <div class="flip-stack" id="flip-stack">
-
-          <div class="flip-shadow" aria-hidden="true"></div>
-
-          <div class="flip-card" id="flip-card">
-
-            <div class="px-6 pt-6 pb-3 flex items-start justify-between gap-3 flex-shrink-0">
-              <div class="flex items-center gap-3 min-w-0 flex-1">
-                <div id="fc-icon" class="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 icon-grad shadow-lg"
-                     style="box-shadow: 0 8px 22px rgba(38,198,218,0.42);">
-                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
-                  </svg>
-                </div>
-                <span id="fc-name" class="font-bold text-base sm:text-lg text-gray-900 truncate leading-snug"></span>
-              </div>
-              <span class="text-xs font-semibold px-3 py-1.5 rounded-full text-white flex-shrink-0 shadow-sm"
-                    style="background: linear-gradient(135deg, #26c6da, #4caf50);">Доступно</span>
-            </div>
-
-            <div class="px-6 pb-4 flex-shrink-0">
-              <div class="flex justify-between text-xs font-medium text-gray-500 mb-2">
-                <span>Статус</span><span class="text-[#00838f]">Активно</span>
-              </div>
-              <div class="w-full bg-gray-100/90 rounded-full h-2 overflow-hidden">
-                <div class="app-progress h-full" style="width:100%"></div>
-              </div>
-            </div>
-
-            <div id="fc-img-wrap" class="fc-preview mx-6 rounded-2xl overflow-hidden mb-4 flex items-center justify-center p-4">
-              <img id="fc-img" src="" alt="" class="hidden rounded-lg" />
-              <div id="fc-placeholder" class="icon-grad w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0"
-                   style="box-shadow:0 10px 28px rgba(38,198,218,0.45);">
-                <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
-                </svg>
-              </div>
-            </div>
-
-            <div class="px-6 pb-3 flex-shrink-0">
-              <p id="fc-desc" class="text-sm text-gray-600 leading-relaxed line-clamp-3"></p>
-            </div>
-
-            <div id="fc-features" class="px-6 pb-4 flex gap-2 flex-shrink-0"></div>
-
-            <div class="px-6 pb-6 mt-auto flex-shrink-0">
-              <a id="fc-btn" href="#" class="app-btn">Перейти к приложению →</a>
-            </div>
-
-          </div>
-
-          <div id="fc-dots" class="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2.5 items-center"></div>
-
-        </div>
-      </div>
-      {% endif %}
-
-    </div><!-- /.flex -->
+<section class="hero">
+  <span class="hero-accent fade-up"></span>
+  <h1 class="grad-text fade-up fade-up-d1">{{ settings.slogan or "Технологии, которые работают на бизнес." }}</h1>
+  <p class="lead fade-up fade-up-d2">{{ settings.short_description or "Сервисы Айс.Продукт помогают компаниям автоматизировать процессы, защищать данные и управлять командой." }}</p>
+  <div class="hero-actions fade-up fade-up-d3">
+    <a href="#products" class="btn-dark">Смотреть решения</a>
+    <a href="/blog" class="btn-light">Читать блог →</a>
   </div>
 </section>
 
-<!-- PRODUCTS GRID -->
-<section id="products" class="py-16 px-4 sm:px-6 lg:px-8"
-         style="background: linear-gradient(to right, #e0f7fa, #ffffff);">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-10">Наши решения</h2>
-
+<section id="products" class="section section-muted js-reveal">
+  <div class="wrap">
+    <h2 class="display">Решения</h2>
+    <p class="sub">Продукты для команд, которые ценят ясность и результат.</p>
     {% if apps %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="product-grid">
       {% for product in apps %}
-      <div class="card flex flex-col">
-        <div class="h-44 flex items-center justify-center overflow-hidden relative"
-             style="background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 60%, #e8f5e9 100%);">
-          {% if product.icon_path %}
-            <img src="{{ product.icon_path }}" alt="{{ product.name }}"
-                 class="h-24 w-24 object-contain rounded-xl relative z-10" />
-          {% else %}
-            <div class="h-20 w-20 rounded-xl icon-grad flex items-center justify-center relative z-10"
-                 style="box-shadow:0 8px 20px rgba(38,198,218,0.4);">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/>
-              </svg>
+      <a class="product-card" href="/app/{{ product.slug }}">
+        <div class="product-visual">
+          <div class="icon-wrap">
+            <div class="icon-inner">
+              {% if product.icon_path %}
+                <img src="{{ product.icon_path }}" alt="{{ product.name }}" />
+              {% else %}
+                <span class="icon-grad" style="width:36px;height:36px;border-radius:50%;display:block"></span>
+              {% endif %}
             </div>
-          {% endif %}
+          </div>
         </div>
-        <div class="p-6 flex flex-col gap-3 flex-1 bg-white">
-          <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
-          <p class="text-gray-500 text-sm leading-relaxed flex-1">{{ product.short_description }}</p>
-          <a href="/app/{{ product.slug }}" class="btn-outline text-sm self-start">
-            Подробнее
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
+        <div class="product-body">
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.short_description }}</p>
+          <span class="link-more">Подробнее →</span>
         </div>
-      </div>
+      </a>
       {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-24 text-gray-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
-      </svg>
-      <p class="text-lg">Решения пока не добавлены.</p>
-    </div>
+    <p class="sub">Решения скоро появятся.</p>
     {% endif %}
   </div>
 </section>
 
-<!-- CTA Banner -->
-{% if apps %}
-<section class="py-16 px-4 sm:px-6 lg:px-8"
-         style="background: linear-gradient(to right, #00bcd4, #4caf50);">
-  <div class="max-w-6xl mx-auto text-center flex flex-col items-center gap-5">
-    <h2 class="text-2xl sm:text-3xl font-semibold text-white">Готовы начать работу?</h2>
-    <p class="text-white/80 max-w-md">Выберите продукт и начните использовать бесплатно уже сегодня.</p>
-    <a href="#products" class="inline-flex items-center gap-2 bg-white font-medium px-6 py-3 rounded-xl transition-opacity hover:opacity-90"
-       style="color:#00bcd4; box-shadow:0 4px 14px rgba(0,0,0,0.15);">
-      Смотреть решения
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-      </svg>
-    </a>
+<section class="section js-reveal">
+  <div class="wrap">
+    <h2 class="display">Блог</h2>
+    <p class="sub">Разборы, практика и идеи для бизнеса.</p>
+    {% if blog_posts %}
+    <div class="content-grid">
+      {% for item in blog_posts %}
+      <a class="story-card" href="/blog/{{ item.slug }}">
+        {% if item.cover_path %}<img src="{{ item.cover_path }}" alt="" />{% endif %}
+        <div class="meta">
+          <span class="eyebrow">Блог</span>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.excerpt }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <p style="margin-top:28px"><a class="link-more" href="/blog">Все материалы блога →</a></p>
+    {% else %}
+    <p class="sub">Первые статьи появятся после запуска конвеера в админке.</p>
+    {% endif %}
   </div>
 </section>
-{% endif %}
 
-{% endblock %}
+<section class="section section-muted js-reveal">
+  <div class="wrap">
+    <h2 class="display">Новости</h2>
+    <p class="sub">Коротко о том, что меняется в продуктах и отрасли.</p>
+    {% if news_posts %}
+    <div class="content-grid">
+      {% for item in news_posts %}
+      <a class="story-card" href="/news/{{ item.slug }}">
+        {% if item.cover_path %}<img src="{{ item.cover_path }}" alt="" />{% endif %}
+        <div class="meta">
+          <span class="eyebrow">Новости</span>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.excerpt }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <p style="margin-top:28px"><a class="link-more" href="/news">Все новости →</a></p>
+    {% else %}
+    <p class="sub">Лента новостей заполнится автоматически.</p>
+    {% endif %}
+  </div>
+</section>
 
-{% block extra_scripts %}
-{% if apps %}
-<script>
-(function () {
-  // Data from server
-  const APPS = [
-    {% for product in apps %}
-    {
-      name:     {{ product.name | tojson }},
-      slug:     {{ product.slug | tojson }},
-      desc:     {{ product.short_description | tojson }},
-      icon:     {{ product.icon_path | tojson }},
-      url:      {{ product.external_url | tojson }},
-      features: {{ product.features | tojson if product.features else '[]' }},
-    },
-    {% endfor %}
-  ];
-
-  if (APPS.length === 0) return;
-
-  let current  = 0;
-  let animating = false;
-  const INTERVAL = 4000; // ms between flips
-  const isTouchDevice = (
-    window.matchMedia('(hover: none)').matches ||
-    window.matchMedia('(pointer: coarse)').matches ||
-    ('ontouchstart' in window) ||
-    (navigator.maxTouchPoints || 0) > 0 ||
-    window.innerWidth < 768
-  );
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const useFlipAnimation = !isTouchDevice && !prefersReducedMotion;
-  const useAutoFlip = !isTouchDevice && !prefersReducedMotion;
-
-  const card      = document.getElementById('flip-card');
-  const fcName    = document.getElementById('fc-name');
-  const fcDesc    = document.getElementById('fc-desc');
-  const fcBtn     = document.getElementById('fc-btn');
-  const fcImg     = document.getElementById('fc-img');
-  const fcPh      = document.getElementById('fc-placeholder');
-  const fcFeats   = document.getElementById('fc-features');
-  const dotsWrap  = document.getElementById('fc-dots');
-  const stack     = document.getElementById('flip-stack');
-
-  // If any required node is missing, do not crash the page.
-  if (!card || !fcName || !fcDesc || !fcBtn || !fcImg || !fcPh || !fcFeats || !dotsWrap || !stack) {
-    return;
-  }
-
-  // Build dots
-  APPS.forEach((_, i) => {
-    const d = document.createElement('button');
-    d.type = 'button';
-    d.className = 'fc-dot';
-    d.style.background = i === 0 ? 'linear-gradient(135deg,#26c6da,#66bb6a)' : '#b2ebf2';
-    d.style.transform = i === 0 ? 'scale(1.35)' : 'scale(1)';
-    d.style.boxShadow = i === 0 ? '0 2px 8px rgba(38,198,218,0.45)' : 'none';
-    d.setAttribute('aria-label', 'Приложение ' + (i + 1));
-    d.addEventListener('click', () => { if (!animating) flipTo(i); });
-    dotsWrap.appendChild(d);
-  });
-
-  function updateDots(idx) {
-    [...dotsWrap.children].forEach((d, i) => {
-      const on = i === idx;
-      d.style.background = on ? 'linear-gradient(135deg,#26c6da,#66bb6a)' : '#b2ebf2';
-      d.style.transform = on ? 'scale(1.35)' : 'scale(1)';
-      d.style.boxShadow = on ? '0 2px 8px rgba(38,198,218,0.45)' : 'none';
-    });
-  }
-
-  function fillCard(app) {
-    fcName.textContent = app.name;
-    fcDesc.textContent = app.desc;
-
-    // Icon / screenshot
-    if (app.icon) {
-      fcImg.src = app.icon;
-      fcImg.alt = app.name;
-      fcImg.classList.remove('hidden');
-      fcPh.classList.add('hidden');
-    } else {
-      fcImg.classList.add('hidden');
-      fcImg.removeAttribute('src');
-      fcPh.classList.remove('hidden');
-    }
-
-    // Button
-    const target = app.url || ('/app/' + app.slug);
-    fcBtn.href = target;
-    fcBtn.textContent = app.url ? 'Перейти к приложению →' : 'Подробнее →';
-
-    // Features (max 3)
-    fcFeats.innerHTML = '';
-    (app.features || []).slice(0, 3).forEach(f => {
-      const b = document.createElement('div');
-      b.className = 'app-badge';
-      const inner = document.createElement('div');
-      inner.style.fontSize = '0.7rem';
-      inner.style.fontWeight = '500';
-      inner.style.color = '#006064';
-      inner.style.lineHeight = '1.35';
-      inner.textContent = f;
-      b.appendChild(inner);
-      fcFeats.appendChild(b);
-    });
-  }
-
-  function flipTo(nextIdx) {
-    if (nextIdx === current || animating) return;
-    if (!useFlipAnimation) {
-      current = nextIdx;
-      fillCard(APPS[current]);
-      updateDots(current);
-      return;
-    }
-
-    animating = true;
-    // 1. Animate current card OUT
-    card.classList.add('leaving');
-
-    card.addEventListener('animationend', function onOut() {
-      card.removeEventListener('animationend', onOut);
-      card.classList.remove('leaving');
-
-      // 2. Fill with next app data (card is invisible)
-      current = nextIdx;
-      fillCard(APPS[current]);
-      updateDots(current);
-
-      // 3. Animate new content IN
-      card.classList.add('entering');
-      card.addEventListener('animationend', function onIn() {
-        card.removeEventListener('animationend', onIn);
-        card.classList.remove('entering');
-        animating = false;
-      }, { once: true });
-    }, { once: true });
-  }
-
-  function flipNext() {
-    flipTo((current + 1) % APPS.length);
-  }
-
-  // Init first card
-  fillCard(APPS[0]);
-
-  // Auto-flip (desktop only to keep mobile scrolling smooth)
-  let timer = null;
-  if (useAutoFlip) {
-    timer = setInterval(flipNext, INTERVAL);
-  }
-
-  // Pause on hover
-  stack.addEventListener('mouseenter', () => {
-    if (timer) clearInterval(timer);
-  });
-  stack.addEventListener('mouseleave', () => {
-    if (!useAutoFlip) return;
-    timer = setInterval(flipNext, INTERVAL);
-  });
-})();
-</script>
-{% endif %}
+<section class="cta-band">
+  <h2>Готовы начать</h2>
+  <p>Выберите продукт и запустите работу без лишних шагов.</p>
+  <a href="#products" class="btn-dark">К решениям</a>
+</section>
 {% endblock %}

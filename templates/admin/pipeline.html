@@ -1,0 +1,160 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Конвеер контента{% endblock %}
+{% block page_title %}Конвеер контента{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl flex flex-col gap-6">
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="stat-panel">
+      <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">Автозапуск</div>
+      <div class="flex items-center gap-2 font-medium">
+        <span class="stat-dot {{ 'on' if p.auto_enabled else 'off' }}"></span>
+        {{ "Включён" if p.auto_enabled else "Выключен" }}
+      </div>
+      <p class="text-xs text-gray-400 mt-1">каждые {{ p.interval_hours }} ч · {{ p.posts_per_run }} шт.</p>
+    </div>
+    <div class="stat-panel">
+      <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">Публикация</div>
+      <div class="flex items-center gap-2 font-medium">
+        <span class="stat-dot {{ 'on' if p.auto_publish else 'off' }}"></span>
+        {{ "Сразу на сайт" if p.auto_publish else "Черновик" }}
+      </div>
+      <p class="text-xs text-gray-400 mt-1">{{ "Блог и новости" if p.content_mix == "both" else ("Только блог" if p.content_mix == "blog" else "Только новости") }}</p>
+    </div>
+    <div class="stat-panel">
+      <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">Последний запуск</div>
+      <div class="font-medium">{{ p.last_run_at.strftime("%d.%m.%Y %H:%M") if p.last_run_at else "Ещё не было" }}</div>
+      <p class="text-xs {{ 'text-red-500' if p.last_error else 'text-gray-400' }} mt-1">{{ "Ошибка" if p.last_error else "Готово" }}</p>
+    </div>
+  </div>
+
+  {% if saved %}
+  <div class="admin-card text-sm" style="background: linear-gradient(90deg, #e0f7fa, #e8f5e9);">Настройки сохранены.</div>
+  {% endif %}
+  {% if queued %}
+  <div class="admin-card text-sm">Генерация запущена в фоне. Обновите страницу через минуту — материал появится в журнале и в разделе «Блог» / «Новости».</div>
+  {% endif %}
+  {% if p.last_error %}
+  <div class="admin-card text-sm text-red-600">Последняя ошибка: {{ p.last_error }}</div>
+  {% endif %}
+
+  <form method="post" action="/admin/pipeline" class="admin-card flex flex-col gap-5">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+
+    <p class="text-sm text-gray-500">
+      GPT-5.6 Luna пишет SEO-статьи по системному промпту. GPT Image 2 рисует обложки.
+      Ключ можно хранить здесь или в переменной окружения <code>OPENAI_API_KEY</code>
+      {% if has_env_key %}(окружение уже задано){% endif %}.
+    </p>
+
+    <div>
+      <label class="form-label">OpenAI API ключ</label>
+      <input class="form-input font-mono text-xs" type="password" name="openai_api_key"
+             placeholder="{{ key_mask or 'sk-...' }}" autocomplete="off" />
+      <p class="text-xs text-gray-400 mt-1">Оставьте пустым, чтобы не менять сохранённый ключ.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="form-label">Модель текста</label>
+        <input class="form-input font-mono text-xs" name="text_model" value="{{ p.text_model }}" />
+      </div>
+      <div>
+        <label class="form-label">Модель изображений</label>
+        <input class="form-input font-mono text-xs" name="image_model" value="{{ p.image_model }}" />
+      </div>
+      <div>
+        <label class="form-label">Размер обложки</label>
+        <input class="form-input font-mono text-xs" name="image_size" value="{{ p.image_size }}" />
+      </div>
+      <div>
+        <label class="form-label">Тип материалов</label>
+        <select class="form-input" name="content_mix">
+          <option value="both" {% if p.content_mix == 'both' %}selected{% endif %}>Блог и новости</option>
+          <option value="blog" {% if p.content_mix == 'blog' %}selected{% endif %}>Только блог</option>
+          <option value="news" {% if p.content_mix == 'news' %}selected{% endif %}>Только новости</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="generate_images" value="true" {% if p.generate_images %}checked{% endif %} />
+      Генерировать обложки (gpt-image-2)
+    </label>
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="auto_enabled" value="true" {% if p.auto_enabled %}checked{% endif %} />
+      Автозапуск конвеера по расписанию
+    </label>
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="auto_publish" value="true" {% if p.auto_publish %}checked{% endif %} />
+      Автопубликация (иначе черновик на модерацию)
+    </label>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="form-label">Интервал, часов</label>
+        <input class="form-input" type="number" min="1" max="168" name="interval_hours" value="{{ p.interval_hours }}" />
+      </div>
+      <div>
+        <label class="form-label">Материалов за запуск</label>
+        <input class="form-input" type="number" min="1" max="5" name="posts_per_run" value="{{ p.posts_per_run }}" />
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <label class="form-label mb-0">Системный промпт (темы, тон, SEO-правила)</label>
+        <button type="button" class="text-xs text-[#00acc1]" id="reset-prompt">Вернуть шаблон</button>
+      </div>
+      <textarea class="form-input text-xs" name="system_prompt" id="system-prompt" rows="14">{{ p.system_prompt }}</textarea>
+      <textarea id="default-prompt" hidden>{{ default_prompt }}</textarea>
+    </div>
+
+    <div class="flex justify-end">
+      <button class="btn-accent" type="submit">Сохранить настройки</button>
+    </div>
+  </form>
+
+  <form method="post" action="/admin/pipeline/run" class="admin-card flex flex-wrap items-end gap-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+    <div class="flex-1 min-w-[180px]">
+      <label class="form-label">Сгенерировать сейчас</label>
+      <select class="form-input" name="kind">
+        <option value="">Авто (по настройке микса)</option>
+        <option value="blog">Блог</option>
+        <option value="news">Новость</option>
+      </select>
+    </div>
+    <button class="btn-accent" type="submit">Запустить</button>
+  </form>
+
+  <div class="admin-card">
+    <h2 class="font-semibold mb-3">Журнал запусков</h2>
+    {% if p.last_run_at %}
+    <p class="text-xs text-gray-400 mb-3">Последний запуск: {{ p.last_run_at.strftime("%d.%m.%Y %H:%M") }} UTC</p>
+    {% endif %}
+    {% if runs %}
+    <div class="text-sm flex flex-col gap-2">
+      {% for run in runs %}
+      <div class="flex gap-3 border-b border-[#e0f7fa] pb-2">
+        <span class="text-xs font-medium {{ 'text-[#43a047]' if run.status == 'ok' else 'text-red-600' }}">{{ run.status }}</span>
+        <span class="flex-1">{{ run.title or "—" }}</span>
+        <span class="text-xs text-gray-400">{{ run.duration_ms }} мс</span>
+      </div>
+      {% if run.message %}<div class="text-xs text-gray-500 -mt-1 mb-1">{{ run.message }}</div>{% endif %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-500">Пока не было запусков.</p>
+    {% endif %}
+  </div>
+</div>
+<script>
+  document.getElementById("reset-prompt")?.addEventListener("click", function () {
+    var src = document.getElementById("default-prompt");
+    var dest = document.getElementById("system-prompt");
+    if (src && dest) dest.value = src.value;
+  });
+</script>
+{% endblock %}

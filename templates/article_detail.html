@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ article.seo_title or article.title }} — {{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
+{% block meta_description %}{{ article.seo_description or article.excerpt }}{% endblock %}
+
+{% block extra_head %}
+{% if article.seo_keywords %}<meta name="keywords" content="{{ article.seo_keywords }}" />{% endif %}
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{{ article.seo_title or article.title }}" />
+<meta property="og:description" content="{{ article.seo_description or article.excerpt }}" />
+{% if canonical %}<meta property="og:url" content="{{ canonical }}" />{% endif %}
+{% if article.cover_path %}<meta property="og:image" content="{{ article.cover_path }}" />{% endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ article.title | tojson }},
+  "description": {{ (article.seo_description or article.excerpt) | tojson }},
+  "datePublished": {{ (article.published_at.isoformat() if article.published_at else "") | tojson }},
+  "image": {{ (article.cover_path or "") | tojson }},
+  "mainEntityOfPage": {{ (canonical or "") | tojson }},
+  "publisher": { "@type": "Organization", "name": "Айс.Продукт", "url": "https://ice-product.ru/" }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="article-hero">
+  <p class="crumb center">
+    <a href="/">Главная</a> ·
+    <a href="/{{ 'blog' if kind == 'blog' else 'news' }}">{{ "Блог" if kind == "blog" else "Новости" }}</a>
+  </p>
+  <h1>{{ article.title }}</h1>
+  <p class="center">{{ article.excerpt }}</p>
+  {% if article.published_at %}
+  <p class="center" style="margin-top:12px;font-size:13px">{{ article.published_at.strftime("%d.%m.%Y") }}</p>
+  {% endif %}
+</section>
+
+{% if article.cover_path %}
+<div class="cover"><img src="{{ article.cover_path }}" alt="" /></div>
+{% endif %}
+
+<article class="prose">{{ body_html }}</article>
+
+{% if related %}
+<section class="section section-muted js-reveal">
+  <div class="wrap">
+    <h2 class="display">Ещё по теме</h2>
+    <div class="content-grid">
+      {% for item in related %}
+      <a class="story-card" href="/{{ 'blog' if kind == 'blog' else 'news' }}/{{ item.slug }}">
+        {% if item.cover_path %}<img src="{{ item.cover_path }}" alt="" />{% endif %}
+        <div class="meta">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.excerpt }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

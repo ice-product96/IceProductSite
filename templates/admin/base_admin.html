@@ -1,128 +1,103 @@
 <!DOCTYPE html>
-<html lang="ru" class="scroll-smooth">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Админ-панель{% endblock %} — Айс.Продукт</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; color: #1a1a1a; background: #f0fbfc; }
-
-    .grad-text {
-      background: linear-gradient(to right, #00bcd4, #4caf50);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    :root {
+      --ice: #e0f7fa;
+      --grad: linear-gradient(90deg, #26c6da, #66bb6a);
     }
-
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; color: #1a1a1a; background: #f7fbfb; }
+    .grad-text {
+      background: var(--grad);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
     .btn-accent {
       display: inline-flex; align-items: center; gap: 6px;
-      background: linear-gradient(to right, #26c6da, #66bb6a);
-      color: #fff; font-weight: 500; padding: 9px 18px; border-radius: 10px;
-      transition: opacity 0.15s; font-size: 0.875rem;
-      box-shadow: 0 4px 12px rgba(38,198,218,0.35);
+      background: var(--grad); color: #fff; font-weight: 500;
+      padding: 9px 18px; border-radius: 980px; font-size: 0.875rem;
+      box-shadow: 0 6px 16px rgba(38,198,218,.28);
+      transition: transform .18s ease, box-shadow .18s ease;
     }
-    .btn-accent:hover { opacity: 0.85; }
-
+    .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(38,198,218,.36); }
     .btn-danger {
       display: inline-flex; align-items: center; gap: 6px;
       background: #fee2e2; color: #dc2626; font-weight: 500;
-      padding: 9px 18px; border-radius: 10px; transition: background 0.15s; font-size: 0.875rem;
+      padding: 9px 18px; border-radius: 980px; font-size: 0.875rem;
     }
-    .btn-danger:hover { background: #fca5a5; }
-
     .btn-ghost {
       display: inline-flex; align-items: center; gap: 6px;
-      color: #6b7280; font-weight: 500; padding: 9px 18px;
-      border-radius: 10px; transition: background 0.15s; font-size: 0.875rem;
+      color: #5f6b6d; font-weight: 500; padding: 9px 18px; border-radius: 980px; font-size: 0.875rem;
     }
-    .btn-ghost:hover { background: #e0f7fa; color: #1a1a1a; }
-
+    .btn-ghost:hover { background: var(--ice); color: #00838f; }
     .form-input {
-      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
-      padding: 9px 13px; font-size: 0.875rem; outline: none;
-      transition: border-color 0.15s; background: #fff;
+      width: 100%; border: 1px solid #b2ebf2; border-radius: 12px;
+      padding: 9px 13px; font-size: 0.875rem; outline: none; background: #fff;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .form-input:focus { border-color: #26c6da; }
-
-    .form-label { font-size: 0.8125rem; font-weight: 500; color: #6b7280; margin-bottom: 5px; display: block; }
-
-    .admin-card { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 16px; padding: 24px; }
-
+    .form-input:focus { border-color: #26c6da; box-shadow: 0 0 0 3px rgba(38,198,218,.18); }
+    .form-label { font-size: 0.8125rem; font-weight: 500; color: #5f6b6d; margin-bottom: 5px; display: block; }
+    .admin-card {
+      background: #fff; border: 1px solid rgba(0,172,193,.12); border-radius: 20px; padding: 24px;
+      transition: box-shadow .22s ease, border-color .22s ease;
+    }
+    .admin-card:hover { box-shadow: 0 12px 28px rgba(0,172,193,.1); border-color: rgba(38,198,218,.28); }
     .nav-link {
       display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-      border-radius: 10px; font-size: 0.875rem; color: #6b7280;
-      transition: background 0.15s, color 0.15s;
+      border-radius: 10px; font-size: 0.875rem; color: #5f6b6d;
+      border-left: 3px solid transparent;
+      transition: background .15s, color .15s;
     }
-    .nav-link:hover { background: #e0f7fa; color: #00bcd4; }
+    .nav-link:hover { background: #f3fcfd; color: #1a1a1a; }
     .nav-link.active {
-      background: linear-gradient(to right, #e0f7fa, #e8f5e9);
-      color: #00bcd4; font-weight: 500;
-      border-left: 3px solid #26c6da;
+      background: #e0f7fa; color: #00838f; font-weight: 600;
+      border-left-color: #26c6da;
     }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500; color: #fff;
+      padding: 4px 10px; border-radius: 980px;
+      background: var(--grad);
+    }
+    .stat-panel {
+      background: #fff; border: 1px solid rgba(0,172,193,.12); border-radius: 18px; padding: 16px 18px;
+    }
+    .stat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .stat-dot.on { background: #43a047; box-shadow: 0 0 0 4px rgba(67,160,71,.18); }
+    .stat-dot.off { background: #cfd8dc; }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen flex">
-
-  <!-- SIDEBAR -->
-  <aside class="w-56 flex-shrink-0 bg-white flex flex-col min-h-screen sticky top-0 h-screen"
-         style="border-right: 1.5px solid #e0f7fa;">
-
-    <!-- Sidebar header — gradient как на ice-shield.ru brand area -->
-    <div class="p-5 border-b border-ice-100"
-         style="background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%);">
-      <a href="/" class="font-bold text-base">
-        <span class="grad-text">Айс.Продукт</span>
-      </a>
-      <p class="text-xs text-gray-400 mt-0.5">Панель управления</p>
+  <aside class="w-56 flex-shrink-0 bg-white flex flex-col min-h-screen sticky top-0 h-screen border-r border-[#e0f7fa]">
+    <div class="p-5 border-b border-[#e0f7fa]">
+      <a href="/" class="font-semibold text-base tracking-tight grad-text">Айс.Продукт</a>
+      <p class="text-xs text-gray-400 mt-0.5">Администрирование</p>
     </div>
-
     <nav class="flex-1 p-3 flex flex-col gap-1">
-      <a href="/admin/apps" class="nav-link {% if request.url.path.startswith('/admin/apps') %}active{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-        </svg>
-        Приложения
-      </a>
-      <a href="/admin/settings" class="nav-link {% if request.url.path == '/admin/settings' %}active{% endif %}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        Настройки
-      </a>
-      <a href="/" target="_blank" class="nav-link">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-        </svg>
-        Сайт
-      </a>
+      <a href="/admin/apps" class="nav-link {% if request.url.path.startswith('/admin/apps') %}active{% endif %}">Приложения</a>
+      <a href="/admin/content?kind=blog" class="nav-link {% if request.url.path.startswith('/admin/content') and request.query_params.get('kind', 'blog') != 'news' %}active{% endif %}">Блог</a>
+      <a href="/admin/content?kind=news" class="nav-link {% if request.url.path.startswith('/admin/content') and request.query_params.get('kind') == 'news' %}active{% endif %}">Новости</a>
+      <a href="/admin/pipeline" class="nav-link {% if request.url.path.startswith('/admin/pipeline') %}active{% endif %}">Конвеер</a>
+      <a href="/admin/settings" class="nav-link {% if request.url.path == '/admin/settings' %}active{% endif %}">Настройки</a>
+      <a href="/" target="_blank" class="nav-link">Сайт</a>
     </nav>
-
-    <div class="p-3 border-t border-ice-100">
-      <a href="/admin/logout" class="nav-link text-red-400 hover:bg-red-50 hover:text-red-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-        </svg>
-        Выйти
-      </a>
+    <div class="p-3 border-t border-[#e0f7fa]">
+      <a href="/admin/logout" class="nav-link text-red-500">Выйти</a>
     </div>
   </aside>
-
-  <!-- CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen">
-    <header class="bg-white px-8 py-4 flex items-center justify-between"
-            style="border-bottom: 1.5px solid #e0f7fa;">
-      <h1 class="text-lg font-semibold text-gray-800">{% block page_title %}{% endblock %}</h1>
+    <header class="bg-white px-8 py-4 flex items-center justify-between border-b border-[#e0f7fa]">
+      <h1 class="text-lg font-semibold">{% block page_title %}{% endblock %}</h1>
       <div class="flex items-center gap-3">{% block header_actions %}{% endblock %}</div>
     </header>
-    <main class="flex-1 p-8">
-      {% block content %}{% endblock %}
-    </main>
+    <main class="flex-1 p-8">{% block content %}{% endblock %}</main>
   </div>
-
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

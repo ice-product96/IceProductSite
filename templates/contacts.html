@@ -1,153 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Контакты — {{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
-{% block meta_description %}Контакты и техническая поддержка: Telegram, email и телефон.{% endblock %}
+{% block meta_description %}Контакты Айс.Продукт: Telegram, email и телефон поддержки.{% endblock %}
 
 {% block content %}
-<section class="relative overflow-hidden py-16 sm:py-20 px-4 sm:px-6 lg:px-8"
-         style="background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);">
-  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none opacity-35"
-       style="background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);"></div>
-  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none opacity-25"
-       style="background: radial-gradient(circle, #81c784 0%, transparent 70%);"></div>
+<section class="article-hero">
+  <h1>Контакты</h1>
+  <p class="center">Выберите удобный способ связи. Мы отвечаем в рабочие часы и по почте круглосуточно.</p>
+</section>
 
-  <div class="max-w-6xl mx-auto relative">
-    <div class="text-center mb-10 sm:mb-12">
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-4">
-        <span class="grad-text">Контакты и поддержка</span>
-      </h1>
-      <p class="text-gray-600 max-w-2xl mx-auto">
-        Мы готовы помочь вам с любыми вопросами по продуктам. Выберите удобный способ связи.
-      </p>
-    </div>
-
-    <div class="bg-white border border-ice-200 rounded-2xl p-5 sm:p-6 mb-8 shadow-sm">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-        <h2 class="text-lg font-semibold text-gray-800">Статус поддержки</h2>
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
-          <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-          Онлайн
-        </div>
+<section class="section js-reveal" style="padding-top:8px">
+  <div class="wrap" style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <article class="story-card">
+      <div class="meta">
+        <span class="eyebrow">Telegram</span>
+        <h3>Быстрая поддержка</h3>
+        <p>Пн–Вс, 8:00–20:00 (UTC+3)</p>
+        <a class="link-more" href="https://t.me/IceShield_support_bot" target="_blank" rel="noopener">Открыть бот →</a>
       </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <article class="bg-white border border-ice-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-        <div class="px-5 py-4 text-white" style="background: linear-gradient(135deg, #2ea8ff, #1f75d8);">
-          <h3 class="text-lg font-semibold">Telegram</h3>
-          <p class="text-white/85 text-sm">Быстрая поддержка в мессенджере</p>
-        </div>
-        <div class="p-5 flex flex-col gap-4 flex-1">
-          <p class="text-sm text-gray-600"><span class="font-medium text-gray-800">Время работы:</span> Пн–Вс, 8:00–20:00 (UTC+3)</p>
-          <ul class="text-sm text-gray-600 space-y-2">
-            <li>Быстрый ответ (до 5 минут)</li>
-            <li>Персональная консультация</li>
-            <li>Можно отправлять скриншоты и файлы</li>
-          </ul>
-          <a href="https://t.me/IceShield_support_bot" target="_blank" rel="noopener noreferrer"
-             class="mt-auto inline-flex items-center justify-center gap-2 text-white rounded-xl px-4 py-2.5 font-medium"
-             style="background: linear-gradient(135deg, #2ea8ff, #1f75d8);">
-            Открыть @IceShield_support_bot
-          </a>
-        </div>
-      </article>
-
-      <article class="bg-white border border-ice-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-        <div class="px-5 py-4 text-white" style="background: linear-gradient(135deg, #ff6b6b, #e74c3c);">
-          <h3 class="text-lg font-semibold">Email</h3>
-          <p class="text-white/85 text-sm">Подробная поддержка по почте</p>
-        </div>
-        <div class="p-5 flex flex-col gap-4 flex-1">
-          <p class="text-sm text-gray-600"><span class="font-medium text-gray-800">Время работы:</span> 24/7</p>
-          <p class="text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-mono break-all">
-            Ice.product96@yandex.ru
-          </p>
-          <ul class="text-sm text-gray-600 space-y-2">
-            <li>Подходит для детальных обращений</li>
-            <li>Можно прикладывать логи и файлы</li>
-            <li>Среднее время ответа: до 4 часов</li>
-          </ul>
-          <a href="mailto:Ice.product96@yandex.ru?subject=Техническая поддержка"
-             class="mt-auto inline-flex items-center justify-center gap-2 text-white rounded-xl px-4 py-2.5 font-medium"
-             style="background: linear-gradient(135deg, #ff6b6b, #e74c3c);">
-            Написать на email
-          </a>
-        </div>
-      </article>
-
-      <article class="bg-white border border-ice-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-        <div class="px-5 py-4 text-white" style="background: linear-gradient(135deg, #38c172, #2f9e54);">
-          <h3 class="text-lg font-semibold">Телефон</h3>
-          <p class="text-white/85 text-sm">Прямая связь со специалистом</p>
-        </div>
-        <div class="p-5 flex flex-col gap-4 flex-1">
-          <p class="text-sm text-gray-600"><span class="font-medium text-gray-800">Время работы:</span> Пн–Пт, 9:00–18:00 (UTC+3)</p>
-          <p class="text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-mono">
-            +7 (982) 755-40-22
-          </p>
-          <ul class="text-sm text-gray-600 space-y-2">
-            <li>Мгновенное решение вопроса</li>
-            <li>Пошаговая помощь в реальном времени</li>
-            <li>Консультация по настройке</li>
-          </ul>
-          <a href="tel:+79827554022"
-             class="mt-auto inline-flex items-center justify-center gap-2 text-white rounded-xl px-4 py-2.5 font-medium"
-             style="background: linear-gradient(135deg, #38c172, #2f9e54);">
-            Позвонить
-          </a>
-        </div>
-      </article>
-    </div>
-
-    <div class="mt-8 bg-white border border-ice-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Персональные данные</h2>
-      <p class="text-sm text-gray-600 mb-3">
-        Запросы на удаление, уточнение или блокирование персональных данных принимаются по адресу
-        <a href="mailto:Ice.product96@yandex.ru?subject=Запрос%20на%20удаление%20персональных%20данных" class="font-medium text-[#00838f] underline underline-offset-2">Ice.product96@yandex.ru</a>.
-        Порядок описан в
-        <a href="/privacy" class="font-medium text-[#00838f] underline underline-offset-2">Политике конфиденциальности</a>.
-      </p>
-    </div>
-
-    <div class="mt-8 bg-white border border-ice-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Сведения об организации</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">Организация</p>
-          <p class="font-medium text-gray-800">ИП Хлебников Н.Е.</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">Полное наименование</p>
-          <p class="font-medium text-gray-800">Индивидуальный предприниматель Хлебников Никита Евгеньевич</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 md:col-span-2">
-          <p class="text-gray-500 mb-1">Юридический адрес</p>
-          <p class="font-medium text-gray-800">Свердловская область, г. Верхняя Пышма, с. Балтым, ул. Инженерная, д.2</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">ОГРНИП</p>
-          <p class="font-mono text-gray-800">320665800018429</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">ИНН</p>
-          <p class="font-mono text-gray-800">660677570017</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">Расчетный счет</p>
-          <p class="font-mono text-gray-800">40802810102970000330</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">Банк</p>
-          <p class="font-medium text-gray-800">ПАО «МОСКОВСКИЙ КРЕДИТНЫЙ БАНК» г.Москва</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">Корреспондентский счет</p>
-          <p class="font-mono text-gray-800">30101810745250000659</p>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p class="text-gray-500 mb-1">БИК</p>
-          <p class="font-mono text-gray-800">044525659</p>
-        </div>
+    </article>
+    <article class="story-card">
+      <div class="meta">
+        <span class="eyebrow">Email</span>
+        <h3>Подробные обращения</h3>
+        <p>Ice.product96@yandex.ru · ответ обычно до 4 часов</p>
+        <a class="link-more" href="mailto:Ice.product96@yandex.ru?subject=Техническая%20поддержка">Написать →</a>
       </div>
+    </article>
+    <article class="story-card">
+      <div class="meta">
+        <span class="eyebrow">Телефон</span>
+        <h3>+7 (982) 755-40-22</h3>
+        <p>Пн–Пт, 9:00–18:00 (UTC+3)</p>
+        <a class="link-more" href="tel:+79827554022">Позвонить →</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section-muted js-reveal">
+  <div class="wrap">
+    <h2 class="display">Персональные данные</h2>
+    <p class="sub">
+      Запросы на удаление и уточнение данных:
+      <a class="link-more" href="mailto:Ice.product96@yandex.ru?subject=Запрос%20на%20удаление%20персональных%20данных">Ice.product96@yandex.ru</a>.
+      Порядок — в <a class="link-more" href="/privacy">политике конфиденциальности</a>.
+    </p>
+    <h2 class="display" style="margin-top:40px">Организация</h2>
+    <div class="content-grid">
+      <div class="story-card"><div class="meta"><span class="eyebrow">Оператор</span><h3>ИП Хлебников Н.Е.</h3><p>Индивидуальный предприниматель Хлебников Никита Евгеньевич</p></div></div>
+      <div class="story-card"><div class="meta"><span class="eyebrow">Адрес</span><h3>Верхняя Пышма</h3><p>Свердловская область, с. Балтым, ул. Инженерная, д. 2</p></div></div>
+      <div class="story-card"><div class="meta"><span class="eyebrow">Реквизиты</span><h3>ИНН 660677570017</h3><p>ОГРНИП 320665800018429</p></div></div>
     </div>
   </div>
 </section>

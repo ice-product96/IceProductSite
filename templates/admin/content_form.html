@@ -1,0 +1,69 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ "Новый материал" if is_new else "Редактирование" }}{% endblock %}
+{% block page_title %}{{ "Новый материал — " ~ kind_label if is_new else article.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+  {% if errors %}
+  <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+    {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="admin-card flex flex-col gap-5"
+        action="{{ '/admin/content/new' if is_new else '/admin/content/' ~ article.id ~ '/edit' }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+    <input type="hidden" name="kind" value="{{ kind }}" />
+
+    <div>
+      <label class="form-label">Заголовок</label>
+      <input class="form-input" name="title" required value="{{ article.title if article else '' }}" />
+    </div>
+    <div>
+      <label class="form-label">Slug</label>
+      <input class="form-input font-mono text-xs" name="slug" value="{{ article.slug if article else '' }}" placeholder="auto" />
+    </div>
+    <div>
+      <label class="form-label">Краткое описание (сниппет)</label>
+      <textarea class="form-input" name="excerpt" rows="2">{{ article.excerpt if article else '' }}</textarea>
+    </div>
+    <div>
+      <label class="form-label">Текст (HTML)</label>
+      <textarea class="form-input font-mono text-xs" name="body_html" rows="16">{{ article.body_html if article else '' }}</textarea>
+    </div>
+    <div>
+      <label class="form-label">Обложка</label>
+      {% if article and article.cover_path %}
+      <img src="{{ article.cover_path }}" class="w-full max-h-40 object-cover rounded-xl mb-2" alt="" />
+      {% endif %}
+      <input class="form-input" type="file" name="cover" accept="image/*" />
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="form-label">SEO title</label>
+        <input class="form-input" name="seo_title" value="{{ article.seo_title if article else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">Ключевые слова</label>
+        <input class="form-input" name="seo_keywords" value="{{ article.seo_keywords if article else '' }}" />
+      </div>
+    </div>
+    <div>
+      <label class="form-label">Meta description</label>
+      <textarea class="form-input" name="seo_description" rows="2">{{ article.seo_description if article else '' }}</textarea>
+    </div>
+    <div>
+      <label class="form-label">Тема</label>
+      <input class="form-input" name="topic" value="{{ article.topic if article else '' }}" />
+    </div>
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="is_published" value="true" {% if article and article.is_published %}checked{% endif %} />
+      Опубликовать
+    </label>
+    <div class="flex justify-end gap-2">
+      <a href="/admin/content?kind={{ kind }}" class="btn-ghost">Отмена</a>
+      <button class="btn-accent" type="submit">Сохранить</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

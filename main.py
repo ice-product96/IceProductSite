@@ -1,13 +1,15 @@
+import asyncio
 import json
 import os
 import shutil
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image
@@ -33,7 +35,16 @@ from auth import (
     verify_admin,
 )
 from database import Base, engine, get_db, SessionLocal
-from models import App, AppScreenshot, SiteSettings
+from models import App, AppScreenshot, Article, PipelineRun, SiteSettings
+from pipeline import (
+    DEFAULT_IMAGE_MODEL,
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_TEXT_MODEL,
+    get_pipeline_settings,
+    run_once as pipeline_run_once,
+    start_pipeline_loop,
+    unique_article_slug,
+)
 
 # ── App setup ─────────────────────────────────────────────────────────────────
 
@@ -56,14 +67,16 @@ def _ensure_site_settings_schema() -> None:
 _ensure_site_settings_schema()
 
 app = FastAPI(title="Айс.Продукт")
+start_pipeline_loop(app)
 
 BASE_DIR = Path(__file__).parent
 STATIC_DIR = BASE_DIR / "static"
 UPLOADS_DIR = STATIC_DIR / "uploads"
 ICONS_DIR = UPLOADS_DIR / "icons"
 SCREENSHOTS_DIR = UPLOADS_DIR / "screenshots"
+COVERS_DIR = UPLOADS_DIR / "covers"
 
-for d in (ICONS_DIR, SCREENSHOTS_DIR):
+for d in (ICONS_DIR, SCREENSHOTS_DIR, COVERS_DIR):
     d.mkdir(parents=True, exist_ok=True)
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -168,6 +181,7 @@ templates.env.finalize = _jinja_finalize
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 MAX_ICON_SIZE = int(os.getenv("MAX_ICON_SIZE", 524288))       # 512 KB
 MAX_SCREENSHOT_SIZE = int(os.getenv("MAX_SCREENSHOT_SIZE", 2097152))  # 2 MB
+MAX_COVER_SIZE = int(os.getenv("MAX_COVER_SIZE", 3145728))  # 3 MB
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -253,6 +267,17 @@ def get_settings(db: Session) -> SiteSettings:
     return s
 
 
+def published_articles(db: Session, kind: str, limit: Optional[int] = None):
+    q = (
+        db.query(Article)
+        .filter(Article.kind == kind, Article.is_published == True)
+        .order_by(Article.published_at.desc().nullslast(), Article.id.desc())
+    )
+    if limit:
+        q = q.limit(limit)
+    return q.all()
+
+
 # ── Session helpers ───────────────────────────────────────────────────────────
 
 SESSION_COOKIE = "ice_admin_session"
@@ -323,7 +348,14 @@ async def home(request: Request, db: Session = Depends(get_db)):
         .all()
     )
     return templates.TemplateResponse(
-        "index.html", {"request": request, "settings": settings, "apps": apps}
+        "index.html",
+        {
+            "request": request,
+            "settings": settings,
+            "apps": apps,
+            "blog_posts": published_articles(db, "blog", 3),
+            "news_posts": published_articles(db, "news", 3),
+        },
     )
 
 
@@ -353,6 +385,174 @@ async def privacy_page(request: Request, db: Session = Depends(get_db)):
             "settings": settings,
         },
     )
+
+
+def _article_list(kind: str, request: Request, db: Session, page: int = 1):
+    settings = get_settings(db)
+    per_page = 12
+    page = max(1, page)
+    q = (
+        db.query(Article)
+        .filter(Article.kind == kind, Article.is_published == True)
+        .order_by(Article.published_at.desc().nullslast(), Article.id.desc())
+    )
+    total = q.count()
+    items = q.offset((page - 1) * per_page).limit(per_page).all()
+    pages = max(1, (total + per_page - 1) // per_page)
+    prefix = "/blog" if kind == "blog" else "/news"
+    return templates.TemplateResponse(
+        "article_list.html",
+        {
+            "request": request,
+            "settings": settings,
+            "kind": kind,
+            "items": items,
+            "page": page,
+            "pages": pages,
+            "total": total,
+            "canonical": _abs_url(request, prefix),
+        },
+    )
+
+
+@app.get("/blog", response_class=HTMLResponse)
+@app.get("/blog/", response_class=HTMLResponse)
+async def blog_index(request: Request, db: Session = Depends(get_db), page: int = 1):
+    return _article_list("blog", request, db, page)
+
+
+@app.get("/news", response_class=HTMLResponse)
+@app.get("/news/", response_class=HTMLResponse)
+@app.get("/novosti", response_class=HTMLResponse)
+async def news_index(request: Request, db: Session = Depends(get_db), page: int = 1):
+    return _article_list("news", request, db, page)
+
+
+def _escape_xml(value: str) -> str:
+    return (
+        (value or "")
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def _abs_url(request: Request, path: str) -> str:
+    return str(request.base_url).rstrip("/") + path
+
+
+def _rss_feed(kind: str, request: Request, db: Session) -> Response:
+    items = published_articles(db, kind, 40)
+    channel_title = "Блог Айс.Продукт" if kind == "blog" else "Новости Айс.Продукт"
+    prefix = "/blog" if kind == "blog" else "/news"
+    channel_link = _abs_url(request, prefix)
+    rows = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<rss version="2.0">',
+        "<channel>",
+        f"<title>{_escape_xml(channel_title)}</title>",
+        f"<link>{_escape_xml(channel_link)}</link>",
+        f"<description>{_escape_xml(channel_title)}</description>",
+        "<language>ru</language>",
+    ]
+    for item in items:
+        loc = _abs_url(request, f"{prefix}/{item.slug}")
+        pub = (item.published_at or item.created_at)
+        pub_str = pub.strftime("%a, %d %b %Y %H:%M:%S GMT") if pub else ""
+        rows.append("<item>")
+        rows.append(f"<title>{_escape_xml(item.title)}</title>")
+        rows.append(f"<link>{_escape_xml(loc)}</link>")
+        rows.append(f"<guid>{_escape_xml(loc)}</guid>")
+        rows.append(f"<description>{_escape_xml(item.excerpt)}</description>")
+        if pub_str:
+            rows.append(f"<pubDate>{pub_str}</pubDate>")
+        rows.append("</item>")
+    rows.extend(["</channel>", "</rss>"])
+    return Response("\n".join(rows), media_type="application/rss+xml; charset=utf-8")
+
+
+@app.get("/blog/feed.xml")
+async def blog_feed(request: Request, db: Session = Depends(get_db)):
+    return _rss_feed("blog", request, db)
+
+
+@app.get("/news/feed.xml")
+async def news_feed(request: Request, db: Session = Depends(get_db)):
+    return _rss_feed("news", request, db)
+
+
+@app.get("/blog/{slug}", response_class=HTMLResponse)
+async def blog_detail(slug: str, request: Request, db: Session = Depends(get_db)):
+    return _article_detail("blog", slug, request, db)
+
+
+@app.get("/news/{slug}", response_class=HTMLResponse)
+async def news_detail(slug: str, request: Request, db: Session = Depends(get_db)):
+    return _article_detail("news", slug, request, db)
+
+
+def _article_detail(kind: str, slug: str, request: Request, db: Session):
+    settings = get_settings(db)
+    article = (
+        db.query(Article)
+        .filter(Article.kind == kind, Article.slug == slug, Article.is_published == True)
+        .first()
+    )
+    if not article:
+        raise HTTPException(status_code=404)
+    related = (
+        db.query(Article)
+        .filter(
+            Article.kind == kind,
+            Article.is_published == True,
+            Article.id != article.id,
+        )
+        .order_by(Article.published_at.desc().nullslast(), Article.id.desc())
+        .limit(3)
+        .all()
+    )
+    prefix = "/blog" if kind == "blog" else "/news"
+    return templates.TemplateResponse(
+        "article_detail.html",
+        {
+            "request": request,
+            "settings": settings,
+            "article": article,
+            "kind": kind,
+            "related": related,
+            "body_html": full_description_html(article.body_html),
+            "canonical": _abs_url(request, f"{prefix}/{article.slug}"),
+        },
+    )
+
+
+@app.get("/sitemap.xml")
+async def sitemap(request: Request, db: Session = Depends(get_db)):
+    base = str(request.base_url).rstrip("/")
+    entries = [("/", None), ("/contacts", None), ("/privacy", None), ("/blog", None), ("/news", None)]
+    apps = db.query(App).filter(App.is_published == True).all()
+    entries.extend((f"/app/{a.slug}", a.updated_at) for a in apps)
+    articles = db.query(Article).filter(Article.is_published == True).all()
+    for a in articles:
+        prefix = "/blog" if a.kind == "blog" else "/news"
+        entries.append((f"{prefix}/{a.slug}", a.published_at or a.updated_at))
+    body = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for path, dt in entries:
+        loc = f"  <url><loc>{base}{path}</loc>"
+        if dt:
+            loc += f"<lastmod>{dt.strftime('%Y-%m-%d')}</lastmod>"
+        loc += "</url>"
+        body.append(loc)
+    body.append("</urlset>")
+    return Response("\n".join(body), media_type="application/xml")
+
+
+@app.get("/robots.txt")
+async def robots(request: Request):
+    base = str(request.base_url).rstrip("/")
+    txt = f"User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: {base}/sitemap.xml\n"
+    return Response(txt, media_type="text/plain")
 
 
 @app.get("/app/{slug}", response_class=HTMLResponse)
@@ -771,3 +971,328 @@ async def admin_screenshot_delete(
     db.delete(ss)
     db.commit()
     return RedirectResponse(f"/admin/apps/{app_id}/edit", status_code=302)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN — CONTENT (blog / news)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+KIND_LABEL = {"blog": "Блог", "news": "Новости"}
+
+
+def _require_kind(kind: str) -> str:
+    if kind not in ("blog", "news"):
+        raise HTTPException(status_code=404)
+    return kind
+
+
+@app.get("/admin/content", response_class=HTMLResponse)
+async def admin_content_list(
+    request: Request,
+    db: Session = Depends(get_db),
+    kind: str = "blog",
+):
+    require_admin(request)
+    kind = _require_kind(kind)
+    items = (
+        db.query(Article)
+        .filter(Article.kind == kind)
+        .order_by(Article.id.desc())
+        .all()
+    )
+    return templates.TemplateResponse(
+        "admin/content_list.html",
+        {
+            "request": request,
+            "items": items,
+            "kind": kind,
+            "kind_label": KIND_LABEL[kind],
+            "csrf": get_csrf(request),
+        },
+    )
+
+
+def _render_article_form(request, article: Optional[Article], kind: str, errors=None, saved=False):
+    return templates.TemplateResponse(
+        "admin/content_form.html",
+        {
+            "request": request,
+            "article": article,
+            "kind": kind,
+            "kind_label": KIND_LABEL.get(kind, "Материал"),
+            "errors": errors or [],
+            "csrf": get_csrf(request),
+            "is_new": article is None or not article.id,
+            "saved": saved,
+        },
+    )
+
+
+@app.get("/admin/content/new", response_class=HTMLResponse)
+async def admin_content_new(request: Request, kind: str = "blog"):
+    require_admin(request)
+    kind = _require_kind(kind)
+    return _render_article_form(request, None, kind)
+
+
+@app.get("/admin/content/{article_id}/edit", response_class=HTMLResponse)
+async def admin_content_edit(article_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404)
+    return _render_article_form(request, article, article.kind)
+
+
+async def _save_article_from_form(
+    request: Request,
+    db: Session,
+    article: Optional[Article],
+    kind: str,
+    csrf_token: str,
+    title: str,
+    slug: str,
+    excerpt: str,
+    body_html: str,
+    seo_title: str,
+    seo_description: str,
+    seo_keywords: str,
+    topic: str,
+    is_published: bool,
+    cover: Optional[UploadFile],
+):
+    errors = []
+    if not check_csrf(request, csrf_token):
+        return ["Неверный CSRF-токен."], article
+    title = title.strip()
+    if not title:
+        errors.append("Заголовок обязателен.")
+    kind = _require_kind(kind)
+    slug = unique_article_slug(db, kind, slug.strip() or title, exclude_id=article.id if article and article.id else None)
+    if errors:
+        return errors, article
+    is_new = article is None or not article.id
+    if is_new:
+        article = Article(kind=kind, source="manual")
+        db.add(article)
+    article.kind = kind
+    article.title = title[:255]
+    article.slug = slug
+    article.excerpt = excerpt.strip()[:400]
+    article.body_html = sanitize_full_description(body_html)
+    article.seo_title = seo_title.strip()[:255]
+    article.seo_description = seo_description.strip()[:320]
+    article.seo_keywords = seo_keywords.strip()[:500]
+    article.topic = topic.strip()[:255]
+    was_pub = bool(article.is_published)
+    article.is_published = is_published
+    if is_published and not was_pub:
+        article.published_at = datetime.utcnow()
+    if not is_published:
+        article.published_at = article.published_at
+    if cover and cover.filename:
+        data = await cover.read()
+        if len(data) > MAX_COVER_SIZE:
+            errors.append("Обложка слишком большая.")
+        elif not validate_image(data, ALLOWED_IMAGE_TYPES):
+            errors.append("Обложка: PNG, JPEG или WebP.")
+        else:
+            old = article.cover_path
+            filename = save_image(data, COVERS_DIR, MAX_COVER_SIZE, max_dim=1920)
+            article.cover_path = f"/static/uploads/covers/{filename}"
+            if old:
+                delete_file(old)
+    return errors, article
+
+
+@app.post("/admin/content/new", response_class=HTMLResponse)
+async def admin_content_create(
+    request: Request,
+    db: Session = Depends(get_db),
+    csrf_token: str = Form(...),
+    kind: str = Form("blog"),
+    title: str = Form(""),
+    slug: str = Form(""),
+    excerpt: str = Form(""),
+    body_html: str = Form(""),
+    seo_title: str = Form(""),
+    seo_description: str = Form(""),
+    seo_keywords: str = Form(""),
+    topic: str = Form(""),
+    is_published: bool = Form(False),
+    cover: Optional[UploadFile] = File(None),
+):
+    require_admin(request)
+    kind = _require_kind(kind)
+    errors, article = await _save_article_from_form(
+        request, db, None, kind, csrf_token, title, slug, excerpt, body_html,
+        seo_title, seo_description, seo_keywords, topic, is_published, cover,
+    )
+    if errors:
+        return _render_article_form(request, article, kind, errors=errors)
+    db.commit()
+    return RedirectResponse(f"/admin/content?kind={kind}", status_code=302)
+
+
+@app.post("/admin/content/{article_id}/edit", response_class=HTMLResponse)
+async def admin_content_update(
+    article_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    csrf_token: str = Form(...),
+    kind: str = Form("blog"),
+    title: str = Form(""),
+    slug: str = Form(""),
+    excerpt: str = Form(""),
+    body_html: str = Form(""),
+    seo_title: str = Form(""),
+    seo_description: str = Form(""),
+    seo_keywords: str = Form(""),
+    topic: str = Form(""),
+    is_published: bool = Form(False),
+    cover: Optional[UploadFile] = File(None),
+):
+    require_admin(request)
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404)
+    errors, article = await _save_article_from_form(
+        request, db, article, kind, csrf_token, title, slug, excerpt, body_html,
+        seo_title, seo_description, seo_keywords, topic, is_published, cover,
+    )
+    if errors:
+        db.rollback()
+        article = db.query(Article).filter(Article.id == article_id).first()
+        return _render_article_form(request, article, article.kind, errors=errors)
+    db.commit()
+    return RedirectResponse(f"/admin/content?kind={article.kind}", status_code=302)
+
+
+@app.post("/admin/content/{article_id}/delete")
+async def admin_content_delete(
+    article_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    csrf_token: str = Form(...),
+):
+    require_admin(request)
+    if not check_csrf(request, csrf_token):
+        raise HTTPException(status_code=403)
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404)
+    kind = article.kind
+    delete_file(article.cover_path)
+    db.delete(article)
+    db.commit()
+    return RedirectResponse(f"/admin/content?kind={kind}", status_code=302)
+
+
+@app.post("/admin/content/{article_id}/toggle")
+async def admin_content_toggle(
+    article_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    csrf_token: str = Form(...),
+):
+    require_admin(request)
+    if not check_csrf(request, csrf_token):
+        raise HTTPException(status_code=403)
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404)
+    article.is_published = not article.is_published
+    if article.is_published and not article.published_at:
+        article.published_at = datetime.utcnow()
+    db.commit()
+    return RedirectResponse(f"/admin/content?kind={article.kind}", status_code=302)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN — PIPELINE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _mask_key(key: str) -> str:
+    key = (key or "").strip()
+    if len(key) < 8:
+        return ""
+    return "•" * 12 + key[-4:]
+
+
+@app.get("/admin/pipeline", response_class=HTMLResponse)
+async def admin_pipeline_page(request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    settings = get_pipeline_settings(db)
+    runs = db.query(PipelineRun).order_by(PipelineRun.id.desc()).limit(30).all()
+    queued = request.query_params.get("queued") == "1"
+    saved = request.query_params.get("saved") == "1"
+    return templates.TemplateResponse(
+        "admin/pipeline.html",
+        {
+            "request": request,
+            "p": settings,
+            "runs": runs,
+            "csrf": get_csrf(request),
+            "key_mask": _mask_key(settings.openai_api_key),
+            "has_env_key": bool(os.getenv("OPENAI_API_KEY")),
+            "queued": queued,
+            "saved": saved,
+            "default_prompt": DEFAULT_SYSTEM_PROMPT,
+        },
+    )
+
+
+@app.post("/admin/pipeline")
+async def admin_pipeline_save(
+    request: Request,
+    db: Session = Depends(get_db),
+    csrf_token: str = Form(...),
+    openai_api_key: str = Form(""),
+    text_model: str = Form(DEFAULT_TEXT_MODEL),
+    image_model: str = Form(DEFAULT_IMAGE_MODEL),
+    image_size: str = Form("1536x1024"),
+    generate_images: bool = Form(False),
+    system_prompt: str = Form(""),
+    content_mix: str = Form("both"),
+    auto_enabled: bool = Form(False),
+    auto_publish: bool = Form(False),
+    interval_hours: int = Form(24),
+    posts_per_run: int = Form(1),
+):
+    require_admin(request)
+    if not check_csrf(request, csrf_token):
+        raise HTTPException(status_code=403)
+    settings = get_pipeline_settings(db)
+    new_key = openai_api_key.strip()
+    if new_key and not new_key.startswith("•"):
+        settings.openai_api_key = new_key
+    settings.text_model = (text_model.strip() or DEFAULT_TEXT_MODEL)[:80]
+    settings.image_model = (image_model.strip() or DEFAULT_IMAGE_MODEL)[:80]
+    settings.image_size = (image_size.strip() or "1536x1024")[:32]
+    settings.generate_images = generate_images
+    settings.system_prompt = system_prompt.strip() or DEFAULT_SYSTEM_PROMPT
+    settings.content_mix = content_mix if content_mix in ("both", "blog", "news") else "both"
+    settings.auto_enabled = auto_enabled
+    settings.auto_publish = auto_publish
+    settings.interval_hours = max(1, min(168, interval_hours))
+    settings.posts_per_run = max(1, min(5, posts_per_run))
+    db.commit()
+    return RedirectResponse("/admin/pipeline?saved=1", status_code=302)
+
+
+@app.post("/admin/pipeline/run")
+async def admin_pipeline_run(
+    request: Request,
+    csrf_token: str = Form(...),
+    kind: str = Form(""),
+):
+    require_admin(request)
+    if not check_csrf(request, csrf_token):
+        raise HTTPException(status_code=403)
+    force = kind if kind in ("blog", "news") else None
+
+    async def _job():
+        await asyncio.to_thread(pipeline_run_once, force)
+
+    asyncio.create_task(_job())
+    return RedirectResponse("/admin/pipeline?queued=1", status_code=302)

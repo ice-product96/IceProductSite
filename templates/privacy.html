@@ -5,66 +5,52 @@
 {% block extra_head %}
 <style>
   .policy h2 {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    color: #1a1a1a;
-    margin-top: 1.75rem;
+    color: #1d1d1f;
+    letter-spacing: -0.02em;
+    margin-top: 2rem;
     margin-bottom: 0.75rem;
   }
   .policy h2:first-child { margin-top: 0; }
-  .policy p, .policy li { color: #4b5563; font-size: 0.9375rem; line-height: 1.7; }
+  .policy p, .policy li { color: #6e6e73; font-size: 1rem; line-height: 1.7; }
   .policy p + p { margin-top: 0.7rem; }
   .policy ul, .policy ol { margin: 0.6rem 0 0.8rem 1.15rem; }
   .policy li { margin: 0.28rem 0; }
-  .policy a { color: #00acc1; text-decoration: underline; text-underline-offset: 2px; }
-  .policy a:hover { color: #00838f; }
-  .policy table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin: 0.75rem 0 1rem; }
-  .policy th, .policy td { border: 1px solid #d1e9ec; padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
-  .policy th { background: #e0f7fa; color: #374151; font-weight: 600; }
-  .policy td { color: #4b5563; background: #fff; }
+  .policy a { color: #00acc1; }
+  .policy a:hover { color: #00838f; text-decoration: underline; }
+  .policy table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.75rem 0 1rem; }
+  .policy th, .policy td { border: 1px solid #d1e9ec; padding: 0.7rem 0.8rem; text-align: left; vertical-align: top; }
+  .policy th { background: #e0f7fa; color: #1d1d1f; font-weight: 600; }
+  .policy td { color: #6e6e73; background: #fff; }
   @media (max-width: 640px) {
     .policy table, .policy thead, .policy tbody, .policy th, .policy td, .policy tr { display: block; }
     .policy thead { display: none; }
-    .policy tr { margin-bottom: 0.75rem; border: 1px solid #d1e9ec; border-radius: 12px; overflow: hidden; }
-    .policy td { border: 0; border-top: 1px solid #eef6f7; }
-    .policy td::before { content: attr(data-label); display: block; font-weight: 600; color: #374151; margin-bottom: 0.25rem; }
+    .policy tr { margin-bottom: 0.75rem; border: 1px solid rgba(0,0,0,.08); border-radius: 12px; overflow: hidden; }
+    .policy td { border: 0; border-top: 1px solid rgba(0,0,0,.06); }
+    .policy td::before { content: attr(data-label); display: block; font-weight: 600; color: #1d1d1f; margin-bottom: 0.25rem; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="relative overflow-hidden py-16 sm:py-20 px-4 sm:px-6 lg:px-8"
-         style="background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);">
-  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none opacity-35"
-       style="background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);"></div>
-  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full pointer-events-none opacity-25"
-       style="background: radial-gradient(circle, #81c784 0%, transparent 70%);"></div>
+<section class="article-hero">
+  <h1>Политика конфиденциальности</h1>
+  <p class="center">Политика в отношении обработки персональных данных. Редакция от 1 сентября 2026 г.</p>
+</section>
 
-  <div class="max-w-3xl mx-auto relative">
-    <div class="text-center mb-8">
-      <h1 class="text-3xl sm:text-4xl font-semibold mb-3">
-        <span class="grad-text">Политика конфиденциальности</span>
-      </h1>
-      <p class="text-gray-600">
-        Политика в отношении обработки персональных данных.<br class="hidden sm:inline" />
-        Редакция от 1 сентября 2026 г.
-      </p>
+<section class="section" style="padding-top:8px">
+  <div class="wrap" style="max-width:720px">
+    <div class="story-card" style="margin-bottom:20px">
+      <div class="meta">
+        <span class="eyebrow">Персональные данные</span>
+        <h3>Запросы на удаление</h3>
+        <p>Напишите на адрес ниже: мы удалим ваши данные из наших систем и подтвердим это письмом.</p>
+        <a class="link-more" href="mailto:Ice.product96@yandex.ru?subject=Запрос%20на%20удаление%20персональных%20данных">Ice.product96@yandex.ru →</a>
+      </div>
     </div>
 
-    <div class="bg-white border border-ice-200 rounded-2xl p-5 sm:p-6 mb-6 shadow-sm"
-         style="background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 42%, #e8f5e9 100%);">
-      <p class="text-sm font-semibold text-gray-800 mb-1">Запросы на удаление и иные обращения по персональным данным</p>
-      <p class="text-sm text-gray-600 mb-3">
-        Напишите на адрес ниже: мы удалим ваши данные из наших систем и подтвердим это письмом.
-      </p>
-      <a href="mailto:Ice.product96@yandex.ru?subject=Запрос%20на%20удаление%20персональных%20данных"
-         class="inline-flex items-center gap-2 text-base font-semibold break-all"
-         style="color: #00838f;">
-        Ice.product96@yandex.ru
-      </a>
-    </div>
-
-    <article class="policy bg-white border border-ice-200 rounded-2xl p-5 sm:p-8 shadow-sm">
+    <article class="policy">
       <h2>1. Общие положения</h2>
       <p>
         Настоящая Политика в отношении обработки персональных данных (далее — Политика)

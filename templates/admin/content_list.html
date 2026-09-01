@@ -1,0 +1,68 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ kind_label }}{% endblock %}
+{% block page_title %}{{ kind_label }}{% endblock %}
+
+{% block header_actions %}
+<a href="/admin/content/new?kind={{ kind }}" class="btn-accent">Добавить</a>
+{% endblock %}
+
+{% block content %}
+<div class="flex gap-2 mb-6">
+  <a href="/admin/content?kind=blog" class="px-4 py-1.5 rounded-full text-sm {{ 'text-white' if kind == 'blog' else 'bg-white border border-[#e0f7fa]' }}"
+     {% if kind == 'blog' %}style="background: linear-gradient(90deg, #26c6da, #66bb6a);"{% endif %}>Блог</a>
+  <a href="/admin/content?kind=news" class="px-4 py-1.5 rounded-full text-sm {{ 'text-white' if kind == 'news' else 'bg-white border border-[#e0f7fa]' }}"
+     {% if kind == 'news' %}style="background: linear-gradient(90deg, #26c6da, #66bb6a);"{% endif %}>Новости</a>
+</div>
+
+{% if items %}
+<div class="admin-card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b bg-[#f3fcfd]">
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Заголовок</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500 hidden md:table-cell">Источник</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Статус</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr class="border-b last:border-0">
+        <td class="px-4 py-3">
+          <div class="font-medium">{{ item.title }}</div>
+          <div class="text-xs text-gray-400 font-mono">{{ item.slug }}</div>
+        </td>
+        <td class="px-4 py-3 text-gray-500 hidden md:table-cell">{{ "ИИ" if item.source == "ai" else "Вручную" }}</td>
+        <td class="px-4 py-3">
+          {% if item.is_published %}
+            <span class="status-pill">Опубликовано</span>
+          {% else %}
+            <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">Черновик</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex justify-end gap-2">
+            <a href="/admin/content/{{ item.id }}/edit?kind={{ kind }}" class="btn-ghost py-1.5 px-3">Изменить</a>
+            <form method="post" action="/admin/content/{{ item.id }}/toggle">
+              <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+              <button class="btn-ghost py-1.5 px-3" type="submit">{{ "Скрыть" if item.is_published else "Опубликовать" }}</button>
+            </form>
+            <form method="post" action="/admin/content/{{ item.id }}/delete" onsubmit="return confirm('Удалить материал?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+              <button class="btn-danger py-1.5 px-3" type="submit">Удалить</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="admin-card text-center py-16">
+  <p class="font-medium mb-2">Пока пусто</p>
+  <p class="text-sm text-gray-500 mb-4">Добавьте материал вручную или запустите конвеер.</p>
+  <a href="/admin/pipeline" class="btn-accent">Открыть конвеер</a>
+</div>
+{% endif %}
+{% endblock %}

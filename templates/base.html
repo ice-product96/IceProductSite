@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" class="scroll-smooth">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,121 +9,88 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ice:    { 50:'#e0f7fa',100:'#e0f7fa',200:'#b2ebf2',300:'#80deea',400:'#4dd0e1',500:'#26c6da',600:'#00bcd4',700:'#00acc1',800:'#0097a7',900:'#00838f' },
-            shield: { 100:'#e8f5e9',200:'#c8e6c9',300:'#a5d6a7',400:'#81c784',500:'#66bb6a',600:'#4caf50',700:'#43a047',800:'#388e3c',900:'#2e7d32' }
-          },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          borderRadius: { 'xl': '12px', '2xl': '16px' }
-        }
-      }
-    }
-  </script>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      color: #1a1a1a;
-      background: linear-gradient(to bottom right, #f9fafb, #e0f7fa);
-      min-height: 100vh;
-    }
-
-    /* Gradient text utility */
-    .grad-text {
-      background: linear-gradient(to right, #00bcd4, #4caf50);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Primary button — cyan→green */
-    .btn-accent {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: linear-gradient(to right, #26c6da, #66bb6a);
-      color: #fff; font-weight: 500;
-      padding: 10px 22px; border-radius: 12px;
-      transition: opacity 0.15s, transform 0.1s;
-      box-shadow: 0 4px 14px rgba(38,198,218,0.4);
-    }
-    .btn-accent:hover { opacity: 0.88; transform: translateY(-1px); }
-
-    /* Outline button */
-    .btn-outline {
-      display: inline-flex; align-items: center; gap: 6px;
-      border: 1.5px solid #00bcd4; color: #00bcd4; font-weight: 500;
-      padding: 9px 20px; border-radius: 12px;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-    .btn-outline:hover {
-      background: linear-gradient(to right, #26c6da, #66bb6a);
-      color: #fff; border-color: transparent;
-      box-shadow: 0 4px 14px rgba(38,198,218,0.35);
-    }
-
-    /* Product card */
-    .card {
-      background: #ffffff;
-      border: 1.5px solid #e0f7fa;
-      border-radius: 16px; overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-      border-color: #4dd0e1;
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(0,188,212,0.15);
-    }
-
-    /* Icon gradient background */
-    .icon-grad {
-      background: linear-gradient(135deg, #26c6da, #66bb6a);
-    }
-  </style>
+  <link rel="stylesheet" href="/static/css/site.css" />
+  {% if canonical %}<link rel="canonical" href="{{ canonical }}" />{% endif %}
   {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="site min-h-screen flex flex-col">
 
-  <!-- NAV -->
-  <header class="sticky top-0 z-30 border-b border-ice-200/60"
-          style="background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-      <a href="/" class="font-bold text-lg tracking-tight">
-        <span class="grad-text">Айс.Продукт</span>
-      </a>
-      <nav class="flex items-center gap-6 text-sm text-gray-500">
-        <a href="/#products" class="hover:text-[#00bcd4] transition-colors font-medium">Решения</a>
-        <a href="/contacts" class="hover:text-[#00bcd4] transition-colors font-medium">Контакты</a>
-        {% if request.url.path.startswith('/admin') %}
-          <a href="/admin/logout" class="hover:text-[#00bcd4] transition-colors">Выйти</a>
-        {% endif %}
+  <header class="site-nav">
+    <div class="site-nav-inner">
+      <a href="/" class="site-logo">Айс.Продукт</a>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Меню" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+      <nav class="site-links" id="site-links">
+        <a href="/#products">Решения</a>
+        <a href="/blog" class="{% if request.url.path.startswith('/blog') %}is-active{% endif %}">Блог</a>
+        <a href="/news" class="{% if request.url.path.startswith('/news') %}is-active{% endif %}">Новости</a>
+        <a href="/contacts" class="{% if request.url.path.startswith('/contacts') %}is-active{% endif %}">Контакты</a>
       </nav>
     </div>
   </header>
 
-  <!-- MAIN -->
   <main class="flex-1">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- FOOTER -->
-  <footer class="mt-auto" style="background: linear-gradient(to right, #00bcd4, #4caf50);">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8
-                flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/90">
-      <span class="font-medium">© {{ settings.meta_title or "Айс.Продукт" }} {{ 2026 }}</span>
-      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-        <a href="/privacy" class="text-white/90 hover:text-white underline underline-offset-2 decoration-white/40 hover:decoration-white transition-colors">Политика конфиденциальности</a>
-        <span class="hidden sm:inline text-white/50">·</span>
-        <span>Умные инструменты для современных команд</span>
-      </nav>
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="site-logo" style="margin-bottom:10px">Айс.Продукт</div>
+        <p style="max-width:280px;line-height:1.5">Цифровые сервисы для бизнеса: автоматизация, безопасность и управление командой.</p>
+      </div>
+      <div>
+        <div style="color:#1d1d1f;font-weight:600;margin-bottom:10px">Портал</div>
+        <p><a href="/#products">Решения</a></p>
+        <p><a href="/blog">Блог</a></p>
+        <p><a href="/news">Новости</a></p>
+        <p><a href="/contacts">Контакты</a></p>
+      </div>
+      <div>
+        <div style="color:#1d1d1f;font-weight:600;margin-bottom:10px">Правовая информация</div>
+        <p><a href="/privacy">Политика конфиденциальности</a></p>
+        <p>© {{ 2026 }} Айс.Продукт</p>
+      </div>
     </div>
   </footer>
 
   {% if settings.yandex_metrika_code %}
     {{ settings.yandex_metrika_code | safe }}
   {% endif %}
-
+  <script>
+    (function () {
+      var btn = document.getElementById("nav-toggle");
+      var nav = document.getElementById("site-links");
+      if (btn && nav) {
+        btn.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+      }
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var nodes = document.querySelectorAll(".js-reveal");
+      if (!nodes.length) return;
+      function reveal(el) { el.classList.add("is-in"); }
+      if (!("IntersectionObserver" in window)) {
+        nodes.forEach(reveal);
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            reveal(entry.target);
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.01, rootMargin: "0px 0px -8px 0px" });
+      nodes.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) reveal(el);
+        else io.observe(el);
+      });
+    })();
+  </script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -19,7 +19,7 @@
 <div class="admin-card p-0 overflow-hidden">
   <table class="w-full text-sm">
     <thead>
-      <tr class="border-b border-[#e0f7fa] bg-[#f8faf5]">
+      <tr class="border-b bg-[#f3fcfd]">
         <th class="w-8 px-4 py-3"></th>
         <th class="px-4 py-3 text-left font-medium text-[#5F5E5A]">Название</th>
         <th class="px-4 py-3 text-left font-medium text-[#5F5E5A] hidden sm:table-cell">Slug</th>
@@ -30,7 +30,7 @@
     </thead>
     <tbody id="sortable-apps">
       {% for product in apps %}
-      <tr class="border-b border-[#e0f7fa] last:border-0 hover:bg-[#f8faf5] transition-colors" data-id="{{ product.id }}">
+      <tr class="border-b last:border-0 hover:bg-[#f3fcfd] transition-colors" data-id="{{ product.id }}">
         <td class="px-4 py-3 cursor-grab text-[#5F5E5A]/40 hover:text-[#5F5E5A] drag-handle select-none" title="Перетащить для сортировки">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
         </td>
@@ -40,7 +40,7 @@
               <img src="{{ product.icon_path }}" class="w-8 h-8 rounded-lg object-contain bg-[#e0f7fa] p-0.5 flex-shrink-0" alt="" />
             {% else %}
               <div class="w-8 h-8 rounded-lg bg-[#e0f7fa] flex items-center justify-center flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#00acc1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-9-6l6 6m0 0H9m6 0V3"/></svg>
               </div>
             {% endif %}
             <span class="font-medium text-[#1a1a1a]">{{ product.name }}</span>
@@ -76,7 +76,7 @@
 {% else %}
 <div class="admin-card flex flex-col items-center justify-center py-20 gap-4 text-center">
   <div class="w-14 h-14 rounded-2xl bg-[#e0f7fa] flex items-center justify-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#00bcd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#00acc1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
   </div>
   <div>
     <p class="font-medium text-[#1a1a1a]">Приложений пока нет</p>

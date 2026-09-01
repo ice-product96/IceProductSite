@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ "Блог" if kind == "blog" else "Новости" }} — {{ settings.meta_title or "Айс.Продукт" }}{% endblock %}
+{% block meta_description %}{{ "Экспертные материалы Айс.Продукт о бизнесе, ИИ и безопасности." if kind == "blog" else "Новости продуктов и отрасли от Айс.Продукт." }}{% endblock %}
+{% block extra_head %}
+<link rel="alternate" type="application/rss+xml" title="{{ 'Блог' if kind == 'blog' else 'Новости' }} Айс.Продукт" href="/{{ 'blog' if kind == 'blog' else 'news' }}/feed.xml" />
+{% endblock %}
+
+{% block content %}
+<section class="article-hero">
+  <p class="crumb center">{{ "Блог" if kind == "blog" else "Новости" }}</p>
+  <h1>{{ "Мысли, которые помогают расти" if kind == "blog" else "Что происходит сейчас" }}</h1>
+  <p class="center">{{ "Длинные разборы для руководителей и команд." if kind == "blog" else "Короткие заметки о продуктах, рынке и безопасности." }}</p>
+</section>
+
+<section class="section js-reveal" style="padding-top:12px">
+  <div class="wrap">
+    {% if items %}
+    <div class="content-grid">
+      {% for item in items %}
+      <a class="story-card" href="/{{ 'blog' if kind == 'blog' else 'news' }}/{{ item.slug }}">
+        {% if item.cover_path %}<img src="{{ item.cover_path }}" alt="" />{% endif %}
+        <div class="meta">
+          <span class="eyebrow">{{ item.published_at.strftime("%d.%m.%Y") if item.published_at else "" }}</span>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.excerpt }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% if pages > 1 %}
+    <div class="pager" style="margin-top:36px">
+      {% if page > 1 %}<a href="?page={{ page - 1 }}">← Назад</a>{% endif %}
+      <span style="color:#6e6e73">{{ page }} / {{ pages }}</span>
+      {% if page < pages %}<a href="?page={{ page + 1 }}">Дальше →</a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <p class="sub">Пока нет опубликованных материалов.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

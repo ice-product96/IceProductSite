@@ -7,35 +7,34 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; color: #1a1a1a; }
     .grad-text {
       background: linear-gradient(to right, #00bcd4, #4caf50);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .form-input {
-      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
-      padding: 10px 14px; font-size: 0.875rem; outline: none; transition: border-color 0.15s;
-      background: rgba(255,255,255,0.8);
+      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 12px;
+      padding: 10px 14px; font-size: 0.875rem; outline: none;
+      background: rgba(255,255,255,0.88); transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .form-input:focus { border-color: #26c6da; }
+    .form-input:focus { border-color: #26c6da; box-shadow: 0 0 0 3px rgba(38,198,218,.18); }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center px-4"
+<body class="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style="background: linear-gradient(135deg, #f9fafb 0%, #e0f7fa 50%, #e8f5e9 100%);">
 
-  <!-- Decorative blobs -->
   <div class="fixed top-0 right-0 w-96 h-96 rounded-full pointer-events-none opacity-30"
        style="background: radial-gradient(circle, #4dd0e1, transparent 70%); transform: translate(30%,-30%);"></div>
   <div class="fixed bottom-0 left-0 w-72 h-72 rounded-full pointer-events-none opacity-20"
        style="background: radial-gradient(circle, #81c784, transparent 70%); transform: translate(-30%,30%);"></div>
 
   <div class="w-full max-w-sm relative z-10"
-       style="background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-              border-radius: 20px; border: 1px solid rgba(255,255,255,0.6);
-              box-shadow: 0 8px 32px rgba(38,198,218,0.18); padding: 2rem;">
+       style="background: rgba(255,255,255,0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+              border-radius: 22px; border: 1px solid rgba(255,255,255,0.7);
+              box-shadow: 0 12px 36px rgba(38,198,218,0.18); padding: 2rem;">
 
     <div class="text-center mb-6">
-      <div class="text-2xl font-bold mb-1">
+      <div class="text-2xl font-semibold mb-1">
         <span class="grad-text">Айс.Продукт</span>
       </div>
       <p class="text-sm text-gray-400">Панель управления</p>
@@ -60,14 +59,13 @@
                required autocomplete="current-password" />
       </div>
       <button type="submit"
-              class="w-full text-white font-medium py-2.5 rounded-xl transition-opacity hover:opacity-88 text-sm mt-1"
-              style="background: linear-gradient(to right, #26c6da, #66bb6a);
-                     box-shadow: 0 4px 14px rgba(38,198,218,0.4);">
+              class="w-full text-white font-medium py-2.5 rounded-full text-sm mt-1 transition-opacity hover:opacity-90"
+              style="background: linear-gradient(to right, #26c6da, #66bb6a); box-shadow: 0 6px 16px rgba(38,198,218,.35);">
         Войти
       </button>
     </form>
 
-    <a href="/" class="block text-center text-xs text-gray-400 hover:text-[#00bcd4] transition-colors mt-5">
+    <a href="/" class="block text-center text-xs text-gray-400 hover:text-[#00acc1] mt-5">
       ← На сайт
     </a>
   </div>

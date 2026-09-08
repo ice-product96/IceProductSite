@@ -154,10 +154,10 @@
       {% if product.external_url %}
       <div class="lg:hidden rounded-2xl p-5 flex flex-col gap-3 text-white"
            style="background: linear-gradient(135deg, #26c6da, #66bb6a);">
-        <h2 class="text-base font-semibold">Попробуйте бесплатно</h2>
+        <h2 class="text-base font-semibold">Попробуйте</h2>
         <p class="text-sm text-white/80">Откройте приложение и начните работу прямо сейчас.</p>
         <a href="{{ product.external_url }}" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center justify-center gap-2 bg-white text-[#06332f] font-medium text-sm px-4 py-2.5 rounded-full">
+           class="inline-flex items-center justify-center gap-2 bg-white text-[#66bb6a] font-medium text-sm px-4 py-2.5 rounded-full">
           Перейти к приложению
         </a>
       </div>
@@ -180,11 +180,11 @@
       <!-- CTA — gradient как pricing CTA на ice-shield.ru -->
       <div class="hidden lg:flex rounded-2xl p-6 flex-col gap-4 text-white"
            style="background: linear-gradient(135deg, #26c6da, #66bb6a); box-shadow: 0 16px 36px rgba(38,198,218,.28);">
-        <h2 class="text-lg font-semibold">Попробуйте бесплатно</h2>
+        <h2 class="text-lg font-semibold">Попробуйте</h2>
         <p class="text-sm text-white/80">Откройте приложение и начните работу прямо сейчас — без регистрации.</p>
         {% if product.external_url %}
         <a href="{{ product.external_url }}" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center justify-center gap-2 bg-white text-[#06332f] font-medium text-sm px-5 py-2.5 rounded-full">
+           class="inline-flex items-center justify-center gap-2 bg-white text-[#66bb6a] font-medium text-sm px-5 py-2.5 rounded-full">
           Перейти к приложению
         </a>
         {% endif %}

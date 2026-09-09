@@ -50,13 +50,29 @@
       <div>
         <div style="color:#1d1d1f;font-weight:600;margin-bottom:10px">Правовая информация</div>
         <p><a href="/privacy">Политика конфиденциальности</a></p>
+        <p><a href="/consent">Согласие на обработку ПДн</a></p>
+        <p><a href="#" id="cookie-settings-link">Настройки cookie</a></p>
         <p>© {{ 2026 }} Айс.Продукт</p>
       </div>
     </div>
   </footer>
 
+  <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Согласие на использование cookie" aria-live="polite">
+    <p>
+      Мы используем необходимые cookie для работы сайта. Аналитические cookie
+      (Яндекс.Метрика) включаются только с вашего согласия.
+      Нажимая «Принять», вы соглашаетесь с
+      <a href="/privacy">политикой конфиденциальности</a>
+      и <a href="/consent">обработкой персональных данных</a>.
+    </p>
+    <div class="cookie-actions">
+      <button type="button" class="cookie-btn-accept" id="cookie-accept">Принять</button>
+      <button type="button" class="cookie-btn-necessary" id="cookie-necessary">Только необходимые</button>
+    </div>
+  </div>
+
   {% if settings.yandex_metrika_code %}
-    {{ settings.yandex_metrika_code | safe }}
+  <script type="application/json" id="ice-analytics-html">{{ settings.yandex_metrika_code | tojson }}</script>
   {% endif %}
   <script>
     (function () {
@@ -68,7 +84,69 @@
           btn.setAttribute("aria-expanded", open ? "true" : "false");
         });
       }
-      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      var CONSENT_KEY = "ice_cookie_consent";
+      var banner = document.getElementById("cookie-banner");
+      var acceptBtn = document.getElementById("cookie-accept");
+      var necessaryBtn = document.getElementById("cookie-necessary");
+      var settingsLink = document.getElementById("cookie-settings-link");
+
+      function injectAnalytics() {
+        if (window.__iceAnalyticsLoaded) return;
+        var el = document.getElementById("ice-analytics-html");
+        if (!el) return;
+        var html = "";
+        try { html = JSON.parse(el.textContent || "\"\""); } catch (e) { return; }
+        if (!html) return;
+        window.__iceAnalyticsLoaded = true;
+        var box = document.createElement("div");
+        box.innerHTML = html;
+        Array.prototype.slice.call(box.childNodes).forEach(function (node) {
+          if (node.tagName === "SCRIPT") {
+            var s = document.createElement("script");
+            Array.prototype.slice.call(node.attributes).forEach(function (a) {
+              s.setAttribute(a.name, a.value);
+            });
+            s.text = node.textContent;
+            document.head.appendChild(s);
+          } else {
+            document.body.appendChild(node);
+          }
+        });
+      }
+
+      function hideBanner() {
+        if (banner) banner.classList.remove("is-open");
+      }
+      function showBanner() {
+        if (banner) banner.classList.add("is-open");
+      }
+      function saveConsent(value) {
+        try { localStorage.setItem(CONSENT_KEY, value); } catch (e) {}
+        hideBanner();
+        if (value === "all") injectAnalytics();
+        else if (window.__iceAnalyticsLoaded) location.reload();
+      }
+
+      var choice = "";
+      try { choice = localStorage.getItem(CONSENT_KEY) || ""; } catch (e) {}
+      if (choice === "all") injectAnalytics();
+      else if (!choice) showBanner();
+
+      if (acceptBtn) acceptBtn.addEventListener("click", function () { saveConsent("all"); });
+      if (necessaryBtn) necessaryBtn.addEventListener("click", function () { saveConsent("necessary"); });
+      if (settingsLink) {
+        settingsLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          try { localStorage.removeItem(CONSENT_KEY); } catch (err) {}
+          showBanner();
+        });
+      }
+
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.querySelectorAll(".js-reveal").forEach(function (el) { el.classList.add("is-in"); });
+        return;
+      }
       var nodes = document.querySelectorAll(".js-reveal");
       if (!nodes.length) return;
       function reveal(el) { el.classList.add("is-in"); }

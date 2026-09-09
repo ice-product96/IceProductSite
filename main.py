@@ -400,6 +400,20 @@ async def privacy_page(request: Request, db: Session = Depends(get_db)):
     )
 
 
+@app.get("/consent", response_class=HTMLResponse)
+@app.get("/consent/", response_class=HTMLResponse)
+@app.get("/soglasie", response_class=HTMLResponse)
+async def consent_page(request: Request, db: Session = Depends(get_db)):
+    settings = get_settings(db)
+    return templates.TemplateResponse(
+        "consent.html",
+        {
+            "request": request,
+            "settings": settings,
+        },
+    )
+
+
 def _article_list(kind: str, request: Request, db: Session, page: int = 1):
     settings = get_settings(db)
     per_page = 12
@@ -543,7 +557,7 @@ def _article_detail(kind: str, slug: str, request: Request, db: Session):
 @app.get("/sitemap.xml")
 async def sitemap(request: Request, db: Session = Depends(get_db)):
     base = str(request.base_url).rstrip("/")
-    entries = [("/", None), ("/contacts", None), ("/privacy", None), ("/blog", None), ("/news", None)]
+    entries = [("/", None), ("/contacts", None), ("/privacy", None), ("/consent", None), ("/blog", None), ("/news", None)]
     apps = db.query(App).filter(App.is_published == True).all()
     entries.extend((f"/app/{a.slug}", a.updated_at) for a in apps)
     articles = db.query(Article).filter(Article.is_published == True).all()
